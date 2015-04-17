@@ -45,7 +45,7 @@ void TaskConBloqueo(int pid, vector<int> params) {
 	}
 }
 
-void TaskBatch(int total_cpu, int cant_bloqueos){
+void TaskBatch(int pid, int total_cpu, int cant_bloqueos){
 	int indexTicks = 0;
 	int cantBloq = 0;
 	float random = 0;
@@ -53,11 +53,12 @@ void TaskBatch(int total_cpu, int cant_bloqueos){
 	while (indexTicks < total){
 		random = rand();
 		if(random < 0.5){
-			uso_IO(0,1);
+			uso_IO(pid,1);
 			cantBloq++;
 		}
 		if(cantBloq == cant_bloqueos){
-			uso_CPU(total-indexTicks, 0);
+			uso_CPU(pid,total-indexTicks);
+			//break();
 			indexTicks = total+1;
 		}
 		indexTicks++;
@@ -78,3 +79,27 @@ void tasks_init(void) {
 	register_task(TaskConsola,3);
 	register_task(TaskConBloqueo,3);
 }
+
+void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
+	int bloqueos =  new int[total_cpu];
+	int i,random;
+	bloqueados = 0;
+	for(i=0;i<total_cpu;i++)
+		bloqueos[i]=0;
+	for(i=0;i < cant_bloqueos;i++){
+		random = rand() % total_cpu;
+		if (bloqueos[random]){
+			i--;
+		}
+	}
+	for (i = 0; i < total_cpu; i++){
+		if (bloqueos[i]){
+			uso_IO(pid,1);
+		}
+		else{
+			uso_CPU(pid,1);
+		}
+	}
+	delete[] bloqueos;
+}
+
