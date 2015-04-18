@@ -81,9 +81,8 @@ void tasks_init(void) {
 }
 
 void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
-	int bloqueos =  new int[total_cpu];
+	int* bloqueos =  new int[total_cpu];
 	int i,random;
-	bloqueados = 0;
 	for(i=0;i<total_cpu;i++)
 		bloqueos[i]=0;
 	for(i=0;i < cant_bloqueos;i++){
