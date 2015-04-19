@@ -44,8 +44,14 @@ void SchedDynamic::unblock(int pid) {
 
 int SchedDynamic::tick(int cpu, const enum Motivo m) {
 	int sig;
+	int i;
 	int pid_actual = current_pid(cpu);
-	
+	/*En cada tick, decrementar lo que falta 
+	para las deadlines de las periodicas listas*/
+	for(i=0;i<total_tareas;i++){
+		if(period(i)!=0 && ready[i])
+			deadline[i]--;
+	}
 	if (m == EXIT){
 		/*Si el pid actual termino, buscar proximo*/
 		ready[pid_actual] = false;
@@ -127,12 +133,3 @@ int SchedDynamic::tareas_ready(){
 	}
 	return res;	
 }
-
-/*En cada tick, decrementar lo que falta 
-	para las deadlines de las periodicas listas*/
-/*	
-	for(i=0;i<total_tareas;i++){
-		if(period(i)!=0 && ready[i])
-			deadline[i]--;
-	}
-*/
