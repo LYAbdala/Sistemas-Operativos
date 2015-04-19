@@ -83,19 +83,31 @@ void tasks_init(void) {
 void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
 	int* bloqueos =  new int[total_cpu];
 	int i,random;
+	/*Arrancar el arreglo en 0*/
 	for(i=0;i<total_cpu;i++)
 		bloqueos[i]=0;
-	for(i=0;i < cant_bloqueos;i++){
+	/*Marcar posiciones como bloqueos en el arreglo
+	asignandoles 1, con cuidado de las posiciones que
+	ya tenian 1*/
+	for(i=0; i < cant_bloqueos;i++){
+		/*Numero random de 0 a total_cpu-1*/
 		random = rand() % total_cpu;
 		if (bloqueos[random]){
+			/*Si ya tenia un 1, no contar este intento*/
 			i--;
+		}
+		else{
+			/*Si no tenia un 1, todo bien*/
+			bloqueos[i] = 1;
 		}
 	}
 	for (i = 0; i < total_cpu; i++){
+		/*Generar bloqueo en posiciones con 1*/
 		if (bloqueos[i]){
 			uso_IO(pid,1);
 		}
 		else{
+			/*Uso del CPU de duracion 1 en los otros momentos*/
 			uso_CPU(pid,1);
 		}
 	}
