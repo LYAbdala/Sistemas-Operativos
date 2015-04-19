@@ -15,11 +15,12 @@ void SchedFixed::initialize() {
 }
 
 void SchedFixed::load(int pid) {
-	/*Encolar una dupla de la forma (periodo(pid),pid)*/
+	/*Encolar una dupla de la forma <periodo(pid),pid>*/
 	q.push(make_pair(period(pid),pid));
 }
 
 void SchedFixed::unblock(int pid) {
+	/*Encolar una dupla de la forma <periodo(pid),pid>*/
 	q.push(make_pair(period(pid),pid));
 }
 
@@ -37,18 +38,37 @@ int SchedFixed::tick(int cpu, const enum Motivo m) {
 	}
 	else if (m == TICK){
 		/* En TICK, checkear que no haya una más prioritaria lista*/
-		if (q.empty()){
-			/*Si no hay ninguna encolada*/
-			sig = current_pid(cpu);
-		}
-		else{
-			/*Si hay alguna encolada, checkear la prioridad*/
-			if ( (q.top().first) < period(current_pid(cpu))){
+		if (current_pid(cpu) == IDLE_TASK){
+			/*Si esta corriendo la IDLE*/
+			if (q.empty()){
+				/*Si no hay ninguna, seguir con la IDLE*/
+				sig = IDLE_TASK;
+			}
+			else{
+				/*Seguir con la siguiente*/
 				sig = q.top().second;
 				q.pop();
 			}
-			else{
+		}
+		else{
+			/*Si esta corriendo una que no es la IDLE*/
+			if (q.empty()){
+				/*Si no hay ninguna, seguir con la actual*/
 				sig = current_pid(cpu);
+			}
+			else{
+				if(q.top().first < period(current_pid(cpu))){
+					/*Si hay otra con periodo menor (mas prioritaria), 
+					encolar la actual y pasar a esa*/
+					q.push(make_pair(period(current_pid(cpu)),current_pid(cpu)));
+					sig = q.top().second;
+					q.pop();
+				}
+				else{
+					/*Si la proxima de la cola tenia periodo mayor, seguir
+					con la actual*/
+					sig = current_pid(cpu);
+				}
 			}
 		}
 	}
@@ -64,30 +84,3 @@ int SchedFixed::tick(int cpu, const enum Motivo m) {
 	}
 	return sig;	
 }
-
-
-/*
-Las lıneas de la forma “&Ar,p,t” crean r tareas de tipo TaskCPU de duracion t y familia
-A cada p unidades de tiempo (es decir la primera en 0p la segunda en 1p la tercera en
-2p y ası hasta completar r tareas).
-*/
-
-/*
-  current pid(cpu): Devuelve el proceso que esta usando el CPU.
-  total_tasks(): Devuelve la cantidad total de tareas que se van a simular (solo para prioridades fijas y dinamicas)
-  period(int pid): Devuelve el perıodo de una tarea.
-  type(int pid): Devuelve la familia de una tarea.
-  declared_cputime(int pid): Devuelve el tiempo de CPU que la tarea va a utilizar.
-*/
-
-/*
-  TICK: la tarea consumio todo el ciclo utilizando el CPU.
-  BLOCK: la tarea ejecuto una llamada bloqueante o permanecio bloqueada durante el ultimo ciclo.
-  EXIT: la tarea termino(ejecuto return).
-*/ 
-
-/*
-  
-
-
-*/ 

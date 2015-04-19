@@ -21,12 +21,12 @@ class SchedFixed : public SchedBase {
 		int cores;
 		/*Cola de prioridad para las tareas:
 		En la estructura va a haber pares de la forma <periodo(pid),pid>,
-		y la más prioritaria (o sea, la primera que salga con pop() ) 
-		va a ser la que tenga periodo mas pequeño
+		y la más prioritaria (o sea, la primera que salga con top() ) 
+		va a ser la que tenga menor periodo
 		*/
 		priority_queue< pair<int,int>, 
 			vector< pair<int,int> >,
-		   	less< pair<int,int> > > q;
+		   	greater< pair<int,int> > > q;
 };
 
 #endif
