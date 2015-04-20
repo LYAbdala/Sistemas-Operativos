@@ -135,7 +135,15 @@ tarea se desbloquee.
 \subsection{Ejercicio 5}
 \subsection{Ejercicio 6: TaskBatch}
 
-En este ejercicio implementamos la tarea TaskBatch, que recibe como parametros cantcpu
+En este ejercicio implementamos la tarea TaskBatch, que recibe como parametros totalcpu y cantbloqueos. Esta tarea dura totalcpu tiempo de 
+cpu, y realiza cantbloqueos llamadas bloqueantes en momentos psudoaleatorios. Realizamos de dos maneras. La primera implementacion toma iteraba totalcpu
+veces pidiendo un numero aleatorio rand. Si rand > 0.5 entonces llama a una tarea bloqueante, sino, a una tarea que use el cpu. Si la cantidad 
+de iteraciones se acaba sin haber realizado todas las llamadas bloqueantes, entonces se realizaban las restantes seguidas al final. Sino, cuando se realizaba
+la ultima llamada bloqueante, se utilizaba el tiempo restante del cpu todo junto. Lo que observamos en esta implementacion fue que las llamadas bloqueantes
+se hacian para tiempos grandes siempre al principio del intervalo de uso del cpu, y para tiempos de medianos a cortos, siempre al final.**********
+
+Por eso realizamos otra implementacion. En esta se seleccionan previamente en que momentos se van a realizar las llamadas bloqueantes, y luego se itera 
+sobre el tiempo del cpu.
 
 
 \subsection{Ejercicio 7}
