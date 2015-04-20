@@ -153,7 +153,7 @@ desplazaran del procesador a las peri\'odicas y, a diferencia de las peri\'odica
 las condiciones del sistema, estamos listos para contestar las preguntas:
 \newline
 \newline
-\textit{a}) ?`Qu\'e problema est\'an intentando resolver los autores?
+\textit{a}) \textquestiondown Qu\'e problema est\'an intentando resolver los autores?
 \newline
 \newline
 Dado un sistema que se ajuste a las condiciones de entorno previamente explicadas, los autores quieren hallar una forma de organizar la ejecuci\'on de las
@@ -246,5 +246,17 @@ sobre el tiempo del cpu.
 
 \subsection{Ejercicio 7}
 \subsection{Ejercicio 8: Round Robin sin migracion}
+
+En este ejercicio implementamos un scheduler Round Robin que no permite migraciones entre procesos. Para lograr esto, mantenemos una
+cola por procesador 
+y un contador que controla cuantas tareas hay activas por cpu. Para asignar una tarea a un cpu, nos basta con recorrer los contadores 
+y quedarnos con alguno
+de los de valor minimo. Ademas, cada vez que una tarea se bloquea, almacenamos en una variable cual
+es el procesador al que estaba asignada. De este modo, para todos los procesadores, podemos ejecutar como si fuera Round Robin comun. La diferencia
+radica en que cuando una tarea se bloquea, se almacena el valor de cpu de la misma. Cuando la tarea se desbloquea, basta con buscar su
+cpu y pushearla en la cola del mismo.
+
+Y los experimentos los tengo que pensar un ratito mas.
+
 \subsection{Ejercicio 9}
 \subsection{Ejercicio 10}
