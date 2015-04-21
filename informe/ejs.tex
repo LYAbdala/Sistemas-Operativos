@@ -259,4 +259,61 @@ cpu y pushearla en la cola del mismo.
 Y los experimentos los tengo que pensar un ratito mas.
 
 \subsection{Ejercicio 9}
+
+En este ejercicio, debimos idear un lote de tareas que cumpliera en simult\'aneo, las siguientes condiciones:
+
+\begin{itemize}
+ \item Tener un scheduling no factible para el algoritmo de prioridades fijas
+ \item Tener un scheduling factible para el algoritmo de prioridades din\'amicas
+\end{itemize}
+
+El lote que propusimos para este experimento es el siguiente:
+
+\begin{verbatim}
+  lote.tsk:
+    &A1,10,4
+    &B3,4,1
+\end{verbatim}
+
+Es decir, una repetici\'on de tarea de tipo A, con 4 ciclos de clock de tiempo de ejecuci\'on y 10 ciclos de clock como per\'iodo, y 3 repeticiones 
+de tareas de tipo B, con 1 ciclo de clock de tiempo de ejecuci\'on y per\'iodo igual a 4. A continuaci\'on, mostraremos que con esta combinaci\'on
+de per\'iodos y tiempos de ejecuci\'on, la tarea A no terminar\'a de ejecutarse antes de su \textit{deadline} (ciclo de clock n\'umero 10) 
+para el scheduler de prioridades fijas. Es importante notar que a los tiempos de ejecuci\'on de las dos familias de tareas hay que sumarle el ciclo
+de clock extra correspondiente a la llamada a \textit{exit()}, con lo cual, la tarea A requerir\'a de 5 ciclos para completar su ejecuci\'on, y las tareas 
+B requerir\'an de 2 ciclos cada una.
+
+Veamos el diagrama de Gantt para este lote, con scheduling con prioridades fijas:
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/ejercicio9-1.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulaci\'on SchedFixed}
+\end{center}
+\vspace{\baselineskip}
+
+En los instantes m\'ultiplos de 4 (0, 4 y 8) llega al sistema una \textit{request} por una tarea de familia B, mientras que en el instante 0 llega la \'unica 
+\textit{request} por una tarea de tipo A. Como las tareas de tipo B, por tener menor per\'iodo, son m\'as prioritarias que la de tipo A, en los instantes
+0, 4 y 8, el scheduler decide poner a correr las tareas de tipo B, durante los dos ciclos que necesitan para terminar. Esto le deja a la tarea A
+4 ciclos de clock disponibles en los primeros 10 ciclos de clock, con lo cual no puede terminar la ejecuci\'on antes de que llegue su deadline,
+haciendo inviable el uso del scheduler de prioridades fijas para este lote de tareas.
+\\
+Ejecutando el mismo lote de tareas, pero con scheduling de prioridades din\'amicas, obtenemos el siguiente diagrama de Gantt:
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/ejercicio9-2.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulaci\'on SchedDynamic}
+\end{center}
+\vspace{\baselineskip}
+
+En esta simulaci\'on, el comportamiento del scheduler es id\'entico al de prioridades fijas hasta el instante 8, correspondiente a la tercer \textit{request}
+por una tarea de tipo B. En este instante, la tarea de tipo A tiene su deadline dentro de 2 ciclos de clock, mientras que la tarea de tipo B tiene
+su deadline a 4 ciclos de clock de distancia, por lo cual el scheduler decidir\'a poner a correr a la tarea de tipo A en vez de la tarea de tipo B.
+Esto le permitir\'a a la tarea de tipo A consumir el \'ultimo ciclo de CPU que necesitaba, y luego el scheduler pondr\'a a correr a la \'ultima
+tarea de tipo B, que terminar\'a sin problemas su ejecuci\'on. As\'i, todas las tareas del lote terminaron su ejecuci\'on antes de su \textit{deadline}.
+
 \subsection{Ejercicio 10}
