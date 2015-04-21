@@ -245,6 +245,35 @@ sobre el tiempo del cpu.
 
 
 \subsection{Ejercicio 7}
+En el siguiente ejercicio, se nos pide escogerdistintas m\'etricas para poder analizar el rendimiento de el Shcheduler Round Robin para tareas de tipo TaskBatch.\\
+A continuaci\'on, daremos algunos detalles de las seleccionadas.\\
+
+\textbf{\underline{Fariness}}\\
+Medimos que cada proceso reciba una dosis "justa" de CPU. Es decir, todos los procesos deben correr la misma cantidad de tiempo, en el caso de Round Robin, podemos decir el quantum que se le asigna a los procesos sea el mismo en todos los casos.\\
+
+\textbf{\underline{Tiempo de Respuesta}}\\
+En este caso, seria el tiempo que tarda una tarea en empezar a ejecutarse.
+Cuanto tiempo permanece en estado ready hasta la primera ejecucion.
+En el caso de Round Robin, esto depende de cuantas tareas hay esperando antes de la misma, ya que en este Scheduler se utiliza una cola como estructura, y ademas de cuantos nucleos tiene el procesador.\\
+
+\textbf{\underline{Throughput}}\\
+Son la cantidad de procesos que terminan por unidad de tiempo.\\
+Esto dependera de la cantidad de bloqueos que tenga cada proceso y como se organiza la CPU en cuanto a quantum y cantidad de nucleos.\\
+
+\textbf{\underline{Turnaround}}\\
+Es el tiempo total que le toma a un proceso su ejecucion completa, contando bloqueos y cantidad de corridas en quantums de algun nucleo del CPU.
+
+\vspace{1 cm}
+Para empezar, tomaremos una CPU con un solo nucleo y con un quantum de 3 clocks.\\
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj7Co1.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con un n\'ucleo de quantum 3}
+\end{center}
+\vspace{\baselineskip}
 \subsection{Ejercicio 8: Round Robin sin migracion}
 
 En este ejercicio implementamos un scheduler Round Robin que no permite migraciones entre procesos. Para lograr esto, mantenemos una
