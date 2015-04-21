@@ -274,9 +274,10 @@ Para empezar, tomaremos una CPU con un solo nucleo y con un quantum de 3 clocks.
 \footnotesize\textit{Simulacro RR con un n\'ucleo de quantum 3}
 \end{center}
 \vspace{\baselineskip}
+
 \subsection{Ejercicio 8: Round Robin sin migracion}
 
-En este ejercicio implementamos un scheduler Round Robin que no permite migraciones entre procesos. Para lograr esto, mantenemos una
+En este ejercicio implementamos un scheduler Round Robin  que no permite migraciones entre procesos, llamado RoundRobin2. Para lograr esto, mantenemos una
 cola por procesador 
 y un contador que controla cuantas tareas hay activas por cpu. Para asignar una tarea a un cpu, nos basta con recorrer los contadores 
 y quedarnos con alguno
@@ -285,7 +286,63 @@ es el procesador al que estaba asignada. De este modo, para todos los procesador
 radica en que cuando una tarea se bloquea, se almacena el valor de cpu de la misma. Cuando la tarea se desbloquea, basta con buscar su
 cpu y pushearla en la cola del mismo.
 
-Y los experimentos los tengo que pensar un ratito mas.
+Vamos a comparar esta version del scheduler Round Robin con la presentada en el ejercicio 3. Los schedulers tiene diferente comportamiento solo en 
+determinados casos, que son lo que vamos a analizar. Dejaremos los puntos en comun de lado, como por ejemplo, la rotacion total de las tareas.
+Por lo tanto, compararemos la optimalidad en el uso de los procesadores. Es decir, compararemos la cantidad de tiempo de cpu despercidiado. 
+Para esto correremos con dos procesadores el siguiente lote de tareas:
+\begin{center}
+TaskCPU 10\\
+TaskCPU 5\\
+TaskCPU 20
+\end{center}
+ La idea de es comparar cuanto tarda cada scheduler en completar el procesamiento total. Notese que pusimos la tarea de mejor ejucucion en el medio 
+ aproposio. Asi forzamos al RR2 a usar un procesador unicamente para una tarea corta, mientras que debe usar el otro para dos tareas grandes.
+ Es decir, estamos forzando un caso concreto para representar casos mas generales. Ademas, se debe tener el cuenta que el costo de migracion 
+ es de 2 tick, lo cual es bajo teniendo en cuenta todos los datos que se podrian tener que duplicar.
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\Con 2 tick de costo de migracion.}
+\end{center}
+\vspace{\baselineskip}
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR2.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3\\Con 2 tick de costo de migracion.}
+\end{center}
+\vspace{\baselineskip}
+
+Como podemos observar, el tiempo para obtener la ejecucion total es mucho mayor en RR2, ya que no puede usar uno de los procesadores. 
+\textquestiondown Pero que pasaria si el costo de migrar entre proesadores fuera mayor? Digamos, mas del doble del quantum...
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRRMM.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\Con 7 tick de costo de migracion.}
+\end{center}
+\vspace{\baselineskip}
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR2MM.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3.\\Con 7 tick de costo de migracion.}
+\end{center}
+\vspace{\baselineskip}
+
+Podemos notar que aunque la diferencia se redujo, el tiempo total de RR2 sigue siendo mayor que el de RR. Por lo tanto, solo nos resta concluir que 
+no permitir migracion entre procesadores es un error. Esto sujeto a condiciones normales.  Si tuviesemos un costo de migracion ridiculamente alto, 
+si trabajasemos fuera de la cache para la migracion, 
+entonces deberia considerarse realizar una nueva experimentacion comparando los nuevos porcentajes.
 
 \subsection{Ejercicio 9}
 
