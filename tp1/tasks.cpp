@@ -45,7 +45,7 @@ void TaskConBloqueo(int pid, vector<int> params) {
 	}
 }
 
-void TaskBatch(int pid, int total_cpu, int cant_bloqueos){
+/*void TaskBatch(int pid, int total_cpu, int cant_bloqueos){
 	int indexTicks = 0;
 	int cantBloq = 0;
 	float random = 0;
@@ -67,20 +67,12 @@ void TaskBatch(int pid, int total_cpu, int cant_bloqueos){
 		uso_CPU(total-indexTicks, 0);
 		cantBloq++;
 	}
-}
+}*/
 
-void tasks_init(void) {
-	/* Todos los tipos de tareas se deben registrar acá para poder ser usadas.
-	 * El segundo parámetro indica la cantidad de parámetros que recibe la tarea
-	 * como un vector de enteros, o -1 para una cantidad de parámetros variable. */
-	register_task(TaskCPU, 1);
-	register_task(TaskIO, 2);
-	register_task(TaskAlterno, -1);
-	register_task(TaskConsola,3);
-	register_task(TaskConBloqueo,3);
-}
 
-void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
+void TaskBatch(int pid, vector<int> params){
+	int total_cpu = params[0];
+	int cant_bloqueos = params[1];
 	int* bloqueos =  new int[total_cpu];
 	int i,random;
 	/*Arrancar el arreglo en 0*/
@@ -91,7 +83,7 @@ void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
 	ya tenian 1*/
 	for(i=0; i < cant_bloqueos;i++){
 		/*Numero random de 0 a total_cpu-1*/
-		random = rand() % total_cpu;
+		random = rand() % total_cpu + 1;
 		if (bloqueos[random]){
 			/*Si ya tenia un 1, no contar este intento*/
 			i--;
@@ -113,4 +105,18 @@ void TaskBatch2(int pid, int total_cpu, int cant_bloqueos){
 	}
 	delete[] bloqueos;
 }
+
+
+void tasks_init(void) {
+	/* Todos los tipos de tareas se deben registrar acá para poder ser usadas.
+	 * El segundo parámetro indica la cantidad de parámetros que recibe la tarea
+	 * como un vector de enteros, o -1 para una cantidad de parámetros variable. */
+	register_task(TaskCPU, 1);
+	register_task(TaskIO, 2);
+	register_task(TaskAlterno, -1);
+	register_task(TaskConsola,3);
+	register_task(TaskConBloqueo,3);
+	register_task(TaskBatch,2);
+}
+
 
