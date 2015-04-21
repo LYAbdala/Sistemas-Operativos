@@ -245,7 +245,7 @@ sobre el tiempo del cpu.
 
 
 \subsection{Ejercicio 7}
-En el siguiente ejercicio, se nos pide escogerdistintas m\'etricas para poder analizar el rendimiento de el Shcheduler Round Robin para tareas de tipo TaskBatch.\\
+En el siguiente ejercicio, se nos pide escoger distintas m\'etricas para poder analizar el rendimiento de el Shcheduler Round Robin para tareas de tipo TaskBatch.\\
 A continuaci\'on, daremos algunos detalles de las seleccionadas.\\
 
 \textbf{\underline{Fariness}}\\
@@ -274,6 +274,78 @@ Para empezar, tomaremos una CPU con un solo nucleo y con un quantum de 3 clocks.
 \footnotesize\textit{Simulacro RR con un n\'ucleo de quantum 3}
 \end{center}
 \vspace{\baselineskip}
+
+Como podemos observar y ya evaluamos en ejercicios anteriores el Scheduler Round Robin funciona como lo esperado.
+Ahora,nos detallaremos en su rendimiento segun las metricas detalladas anteriormente.
+
+Si utilizamos la metrica \textit{Fairness}, este tipo de Scheduler con un solo nucleo es apropiado ya que todos los procesos recibiran la misma cantidad de tiempo de ejecucion.
+Sin embargo, si nos basamos en \textit{Tiempo de respuesta} o \textit{Turnaround}, no es optimo ya que, al tener un solo nucleo, van a demorar mas tiempo en comenzar a ejecutarse y en finalizar por completo.
+
+Ahora nos preguntamos que pasaria si aumentamos lacantidad de nucleos del procesador.
+De esta manera pueden suceder dos cosas,la primera que tengan la misma cantidad de quantum ambos nucleos, y la segunda que sean distintos.
+A continuacion, estudiaremos ambos casos.\\
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj7Co2.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con dos n\'ucleos de quantum iguales a 3}
+\end{center}
+\vspace{\baselineskip}
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj7Co2dis.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con dos n\'ucleos de quantum distintos}
+\end{center}
+\vspace{\baselineskip}
+
+Como podemos observar los graficos son similares, esto radica en que si bien cuando aumentamos el quantum de uno de los nucleos tenemos la posibilidad de que un procesos se ejecute mas rapido, el mismo es afectado por los bloqueos realizados en la tarea corriendo.\\
+Si nos basamos en la teoria, podemos decir que cuando el Scheduler corre con dos nucleos con la misma cantidad de quantum \textit{Fairness} es optimo ya que todos tendran las mismas posibilidades en tiempo de ejececucion, sin embargo, el mismo no es apropiado en el segundo caso, porque los procesos recibieran distintos quantums lo cual aletera esta metrica.\\
+En el caso de \textit{Tiempo de Respuesta} va a mejorar en comparacion a el procesador con un nucleo ya que hay uno mas que puede ser utlizado, esto sucede en ambos casos.\\
+Con respecto a \textit{Throughput} teniendo dos nucleos al menos 2 procesos pueden terminar por unidad de tiempo, lo cual mejora el primer experimento que solo perimitia uno.\\
+En \textit{Turnaround} podemos decir que la mejora con respecto al primer experimento es que ademas de que algun proceso comenzara a ejecutarse antes ya que ahora  hay un nucleo mas, en el caso de quantums distintos, si el proceso arbitrariamente es beneficiado obteniendo el nucleo con mayor quantum terminara antes, mientras que los bloqueos no alteren su ejecucion.
+
+\vspace{1 cm}
+Por ultimo, observamos que pasaria si nuestro procesador tiene tres nucleos, al igual que el ultimo experimento realizado tenemos dos posibilidades, aqui las mismas:
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj7Co3.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con tres n\'ucleos de quantum iguales a 3}
+\end{center}
+\vspace{\baselineskip}
+
+\vspace{\baselineskip}
+\begin{center}
+\includegraphics[scale=0.45]{../tp1/Test/resEj7Co3dis.png}
+\\
+\vspace{1pt}
+\footnotesize\textit{Simulacro RR con tres n\'ucleos de quantum distintos}
+\end{center}
+\vspace{\baselineskip}
+
+Para comenzar, las conclusiones que obtenemos, al igual que anteriormente son afectadas por los bloqueos que tiene los procesos.\\
+Analicemos teoricamente nuestos experimentos.\\
+En el caso de utlizar como metrica \textit{Fairness}, los resultados que obtenemos son iguales a los obtenidos en el segundo experimento. Es decir, en caso de poseer quantums iguales esta metrica es satifactoria, sin embargo, en el segundo caso no lo sera, ya que la CPU no esta brindandole una dosis justa a cada proceso.\\
+Para \textit{Tiempo de Respuesta} obtenemos una mejora para este experimento con respecto al anterior, un proceso tiene posibilidades de comenzar a ejecutar mas tempranamente debido al aumento en la cantidad de nucleos. Aun siendo visible esta mejora claramente en quantums iguales, en el caso contrario tambien podemos notarlo, ya que al tener distintos quantums el procesador puede estar libre en distintos momentos.\\
+Otra mejora que notamos es en el caso de utilizar como metrica \textit{Troughput} ya que con respecto a los experimentos anteriores, ahora podran finalizar al menos tres procesos en ambos casos.\\
+Por último, si utilizamos \textit{Turnaround} podemos obetener una mejor medicion respecto a los ultimos dos experimentos. Esto es debido a que el procesaodr tiene tres nucleos, esto es mas notorio si ademas los quantums son distintos, ya que un proceso puede ser beneficiado obteniendo el nucleo con mayor tiempo y asi finalizar antes.
+
+\vspace{0,5 cm}
+Podemos concluir con estos experimentos que deducir que si un Scheduler es optimo varia segun algunos factores y que metrica estemos utilizando.\\
+Pudimos ver que \textit{Fairness} depende de los quantums que se le asigna a cada nucleo del procesador, y segun eso puede resultar satifactorio o no.\\
+En \textit{Tiempo de Respuesta} notamos que varia segun la cantidad de nucleos y, de tener distintos quantums, esto puede alterar los resultados aun mejor.\\
+Para \textit{Troughput} depende de la cantidad de nucleos que tenga el procesador, ya que para que termine mas de una tarea, deben trabajar nucleos paralelamente.\\
+Por ultimo, \textit{Turnaround} depende de varias cosas, en caso de que los quantums sean iguales no podemos concluir en demasiado, pero si tenemos disintos podemos obtener resultados satifactorios segun de cada proceso.\\
+Si bien los resultados son teoricos, pudimos notar que nuestras medidas resultan alteradas por los bloqueos realzados por las tareas, el costo de la migracion de un nucleo a otro y el cambio de contexto.
+
+
+
 \subsection{Ejercicio 8: Round Robin sin migracion}
 
 En este ejercicio implementamos un scheduler Round Robin que no permite migraciones entre procesos. Para lograr esto, mantenemos una
