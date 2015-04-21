@@ -90,7 +90,7 @@ void TaskBatch(int pid, vector<int> params){
 		}
 		else{
 			/*Si no tenia un 1, todo bien*/
-			bloqueos[i] = 1;
+			bloqueos[random] = 1;
 		}
 	}
 	for (i = 0; i < total_cpu; i++){
