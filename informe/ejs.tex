@@ -441,7 +441,7 @@ Es decir, una repetici\'on de tarea de tipo A, con 4 ciclos de clock de tiempo d
 de tareas de tipo B, con 1 ciclo de clock de tiempo de ejecuci\'on y per\'iodo igual a 4. A continuaci\'on, mostraremos que con esta combinaci\'on
 de per\'iodos y tiempos de ejecuci\'on, la tarea A no terminar\'a de ejecutarse antes de su \textit{deadline} (ciclo de clock n\'umero 10) 
 para el scheduler de prioridades fijas. Es importante notar que a los tiempos de ejecuci\'on de las dos familias de tareas hay que sumarle el ciclo
-de clock extra correspondiente a la llamada a \textit{exit()}, con lo cual, la tarea A requerir\'a de 5 ciclos para completar su ejecuci\'on, y las tareas 
+de clock extra correspondiente a la llamada a \textit{exit()}. Por lo tanto, la tarea A requerir\'a de 5 ciclos para completar su ejecuci\'on, y las tareas 
 B requerir\'an de 2 ciclos cada una.
 
 Veamos el diagrama de Gantt para este lote, con scheduling con prioridades fijas:
