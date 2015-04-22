@@ -57,7 +57,7 @@ y por \'ultimo, si el procesador tiene 3 n\'ucleos, los 3 correr\'an al mismo ti
 \vspace{\baselineskip}
 
 
-Como podemos observar, los experimentos resultaron satisfactoriamente con nuestra hip\'otesis.
+Los experimentos corroboraron nuestra hip\'otesis, pues el comportamiento reflejado es exactamente el descripto previamente.
 
 Adem\'as, notemos que en los casos en los que utilizamos la tarea TaskConsola, se observan claramente
 las llamadas bloqueantes de manera random, dado que el tiempo tanto de la ejecuci\'on como el de las llamadas bloqueantes var\'ia.
@@ -65,8 +65,8 @@ En el caso en que el procesador tiene tres n\'ucleos, se observa que los n\'ucle
 Idle ya que est\'an desocupadas, esperando la solicitud del pr\'oximo proceso.
 
 \subsection{Ejercicio 3: Implementando Round-Robin}
-La idea del scheduler \textit{Round-Robin} es darle un quantum a cada procesador, cuando un proceso lo solicita,
-si alg\'un n\'ucleo esta desocupado, corre la tarea el tiempo que sea el quantum del procesador seleccionado.
+La idea del scheduler \textit{Round-Robin} es darle un quantum a cada proceso, iterando los mismos para que todos ejecuten una vez antes de volver a comenzar la iteraci\'on.
+
 
 Con esta idea desarrollamos nuestro Scheduler Round-Robin. Utilizamos como estructura una Cola $(q)$, para las llamadas a los procesos, 
 un vector $(quantum)$ de tama\~no cantidad de cores del procesador que asignar\'a el quantum del i\'esimo n\'ucleo, 
@@ -75,17 +75,16 @@ y otro vector $(contador)$ que va a llevar cuenta del tiempo corrido por el proc
 Para el correcto funcionamiento en la funci\'on $tick$ se ven reflejados los casos en el cual el proceso debe 
 dejar de correr ya sea porque termin\'o su tiempo o el quantum del procesador en el que corr\'ia. En \'este \'ultimo 
 caso, la posici\'on correspondiente al n\'ucleo en $contador$ volver\'a a cero y el proceso se encolar\'a para terminar con su tiempo. 
-\\Una vez realizada dicha acci\'on, debe dar lugar a la siguiente en la cola, o en caso de no haber una la Idle 
-deber\'a hacerlo hasta el llamado de una nueva.
+\\Una vez realizada dicha acci\'on, debe dar lugar a la siguiente en la cola. En caso de no haber una, se ejecutara la tarea IDLE hasta el llamado de una nueva tarea.
 
 \subsection{Ejercicio 4: Experimentando Round-Robin}
 
 En este ejercicio nos proponemos experimentar con el scheduler del punto anterior para verificar que el comportamiento es el esperado. Haremos esto de 
 manera incremental, es decir, empezaremos probando las cosas mas basicas e iremos subiendo la complejidad. 
 
-Para empezar, probaremos RR con un solo nucleo. Notese que si le asignamos una sola tarea, su comportamiento no diferiria de algun otro scheduler, por
+Para empezar, probaremos RR con un solo nucleo. Notese que si le asignamos una sola tarea, su comportamiento no diferiria de alg\'un otro scheduler, por
 lo que empezamos probando con cuatro tareas simultaneas. Estas tareas solo usan al cpu, por lo tanto no se bloquean. Esperamos 
-verificar que el scheduler RR le asigna el tiempo del quantum a cada tarea antes de comenzar de nuevo la lista de tareas pendientes.
+verificar que el scheduler RR le asigna el tiempo del quantum a cada tarea antes de comenzar de nuevo a iterar la lista de tareas pendientes.
 
 \vspace{\baselineskip}
 \begin{center}
@@ -96,10 +95,10 @@ verificar que el scheduler RR le asigna el tiempo del quantum a cada tarea antes
 \end{center}
 \vspace{\baselineskip}
 
-Efectivamente, cuando recibe k tareas simultaneas, el scheduler le asigna tiempo de ejecucion a las tareas de modo que todas 
+Efectivamente, cuando recibe k tareas simultaneas, el scheduler le asigna tiempo de ejecuci\'on a las tareas de modo que todas 
 ejecuten antes de regresar a ejecutar la primera. 
 
-A continuacion usaremos el mismo lote de tareas, pero agregaremos otro procesador. Asi veremos si el scheduler maneja correctamente 
+A continuaci\'on usaremos el mismo lote de tareas, pero agregaremos otro procesador. Asi veremos si el scheduler maneja correctamente 
 los procesadores para asegurarse que todas las tareas ejecuten un tiempo $quantum$ antes de volver a empezar.
 
 \vspace{\baselineskip}
@@ -112,7 +111,7 @@ los procesadores para asegurarse que todas las tareas ejecuten un tiempo $quantu
 \vspace{\baselineskip}
 
 El comportamiento es identico al anterior, solo que agregando otro nucleo, es decir, podemos deducir las mismas concluciones. Para probar de 
-modo mas realista este scheduler, vamos a simular un lote de cuatro tareas que realicen llamadas bloqueantes, con dos procesadores para su ejecucion.
+modo mas realista este scheduler, vamos a simular un lote de cuatro tareas que realicen llamadas bloqueantes, con dos procesadores para su ejecuci\'on.
 Lo que queremos mostrar, es que el scheduler trabajara de manera optima en este caso.
 
 \vspace{\baselineskip}
@@ -132,7 +131,7 @@ tarea se desbloquee.
 
 
 
-\subsection{Ejercicio 5}
+\subsection{Ejercicio 5: \textit{Scheduling algorithms for multiprogramming in a hard-real-time environment}}
 Este ejercicio est\'a dividido en dos incisos: en el primero, contestaremos una serie de preguntas formuladas por la c\'atedra, basando nuestras respuestas en el 
 art\'iculo \textit{Scheduling algorithms for multiprogramming in a hard-real-time environment}; en el segundo, explicaremos el dise\~no e implementaci\'on 
 de los algoritmos de scheduling de prioridades fijas y din\'amicas presentados en dicho art\'iculo.
@@ -156,18 +155,18 @@ las condiciones del sistema, estamos listos para contestar las preguntas:
 \textit{a}) \textquestiondown Qu\'e problema est\'an intentando resolver los autores?
 \newline
 \newline
-Dado un sistema que se ajuste a las condiciones de entorno previamente explicadas, los autores quieren hallar una forma de organizar la ejecuci\'on de las
+Dado un sistema que se ajuste a las condiciones de entorno previamente explicadas, los autores quieren hallar una forma heuristica de organizar la ejecuci\'on de las
 tareas, a medida que estas son solicitadas, de manera tal de que todas terminen su ejecuci\'on antes de su respectiva \textit{deadline}. Para esto, los 
-algoritmos presentados estar\'an basados en prioridades (c\'omo se le asignar\'a la prioridad a cada tarea variar\'a seg\'un el algoritmo), y los algoritmos
-de scheduling deber\'an, en cualquier momento, desalojar a la tarea que est\'e ocupando el procesador si llega una solicitud para la ejecuci\'on de una
-tarea m\'as prioritaria, con lo cual, la clave para este tipo de algoritmos estar\'a en c\'omo se le asignar\'an las prioridades a las tareas.
+algoritmos presentados estar\'an basados en prioridades, es decir, c\'omo se le asignar\'a la prioridad a cada tarea variar\'a seg\'un el algoritmo. Luego, los algoritmos
+de scheduling deber\'an desalojar a la tarea que est\'e ocupando el procesador si llega una solicitud para la ejecuci\'on de una
+tarea m\'as prioritaria. Por lo tanto, la clave para este tipo de algoritmos estar\'a en c\'omo se le asignar\'an las prioridades a las tareas.
 \newline
 \newline
 \textit{b}) ?` Por qu\'e introducen el algoritmo de la secci\'on 7? ?`Qu\'e problema buscan resolver con esto?
 \newline
 \newline
 Los autores introducen el algoritmo de la secci\'on 7, buscando bajar la cota superior de ln 2 sobre el tiempo de utilizaci\'on del procesador establecida 
-por el algoritmo de scheduling con prioridades fijas, sin la necesidad de ninguna hip\'otesis extra los tiempos de ejecuci\'on de las tareas, ni tampoco 
+por el algoritmo de scheduling con prioridades fijas, sin tener que asumir ninguna hip\'otesis extra para los tiempos de ejecuci\'on de las tareas, ni tampoco 
 necesitar relajar las \textit{deadlines} de las tareas menos prioritarias seg\'un el esquema anterior. Para lograr esto, introducen el algoritmo de 
 scheduling con prioridades asignadas din\'amicamente; es decir, a lo largo de la ejecuci\'on del sistema, las prioridades de las tareas no estar\'an
 necesariamente fijas.
@@ -198,21 +197,23 @@ largo de toda la simulaci\'on.
 
 En este inciso explicaremos brevemente en qu\'e consiste cada algoritmo de scheduling, y luego el dise\~no y la implementaci\'on de cada uno.
 
-El algoritmo de scheduling con prioridades fijas le asignar\'a a las tareas, como su nombre indica, una prioridad que se mantendr\'a fija a lo largo de 
-toda la ejecuci\'on del sistema. Concretamente, una tarea ser\'a m\'as prioritaria que otra cuando su per\'iodo (el tiempo constante transcurrido entre
-dos solicitudes por dicha tarea) sea menor o, lo que es equivalente, que su \textit{request rate}, definido como el inverso multiplicativo del per\'iodo,
-sea mayor. Para el dise\~no de este algoritmo de scheduling, optamos por utilizar una cola de prioridad, que contendra duplas de la forma 
+Como su nombre indica, el algoritmo de scheduling con prioridades fijas le asignar\'a a las tareas una prioridad que se mantendr\'a fija a lo largo de 
+toda la ejecuci\'on del sistema. Concretamente, una tarea ser\'a m\'as prioritaria que otra cuando su per\'iodo, lease el tiempo constante transcurrido entre
+dos solicitudes por dicha tarea, sea el menor de los dos. O equivalente, que su \textit{request rate}, definido como el inverso multiplicativo del per\'iodo,
+sea mayor. 
+
+Para el dise\~no de este algoritmo de scheduling, optamos por utilizar una cola de prioridad, que contendra duplas de la forma 
 $<periodo(pid),pid>$, donde el m\'as prioritario ser\'a el que tenga menor per\'iodo. Este dise\~no nos permitir\'a obtener de manera sencilla cu\'al es
 la pr\'oxima tarea a ser ejecutada, aprovechando las funcionalidades ya implementadas en la clase \textit{priority queue} para encolar elementos y obtener
 el m\'as prioritario. De esta manera, obtener en cada tick de reloj cu\'al es la tarea a ejecutarse se resumir\'a a verificar, en primer lugar, si la 
-cola de prioridad est\'a vac\'ia: en caso de que est\'e vac\'ia, se ejecutar\'a la tarea Idle, en caso contrario, se obtendr\'a el \textit{pid} de la 
+cola de prioridad est\'a vac\'ia. En caso de que est\'e vac\'ia, se ejecutar\'a la tarea IDLE; en caso contrario, se obtendr\'a el \textit{pid} de la 
 pr\'{o}xima tarea a ser ejecutada mediante la funci\'on \textit{top()}, devolviendo el segundo componente de la dupla devuelta por dicha funci\'on.
 
-El algoritmo de scheduling con prioridades din\'amicas, a diferencia del algoritmo anterior, le asignar\'a las prioridades a cada tarea en cada
-\textit{tick} de reloj, haci\'endolo de la siguiente manera: a cada momento de la ejecuci\'on del sistema, la tarea m\'as prioritaria ser\'a la que
+A diferencia del algoritmo anterior, el algoritmo de scheduling con prioridades din\'amicas, le asignar\'a las prioridades a cada tarea en cada
+\textit{tick} de reloj. Esto se hara de la siguiente manera: a cada momento de la ejecuci\'on del sistema, la tarea m\'as prioritaria ser\'a la que
 tenga su \textit{deadline} m\'as pr\'oxima; coloquialmente, esto quiere decir que lo m\'as urgente ser\'a lo m\'as prioritario. Para el dise\~no de
 este scheduler, como deb\'iamos actualizar las prioridades en todos los \textit{ticks} de reloj, optamos por utilizar arreglos en vez de una cola de 
-prioridad ya que, de utilizar una cola de prioridad, ser\'ia m\'as complicado iterar los procesos contenidos en la tabla para actualizar sus prioridades.
+prioridad. Esto es porque, de utilizar una cola de prioridad, ser\'ia m\'as complicado iterar los procesos contenidos en la tabla para actualizar sus prioridades.
 Por lo tanto, contaremos con los siguientes arreglos:
 
 \begin{itemize}
@@ -224,8 +225,8 @@ Por lo tanto, contaremos con los siguientes arreglos:
 Adicionalmente, implementaos la funcion \textit{int tareasready()}, que devolver\'a la cantidad de tareas en estado \textit{ready}.
 Para obtener, en cada \textit{tick} de reloj, la pr\'oxima tarea a ejecutarse, implementamos una funci\'on de acuerdo a la siguiente l\'ogica:
 Si est\'a corriendo una tarea no peri\'odica, seguir ejecutando esa. En caso contrario, verificar, en primer lugar, si hay alguna tarea
-no peri\'odica en estado \textit{ready}. En caso de haberla, pasar a ejecutar esa; en caso contrario, buscar la m\'as tarea peri\'odica en estado
-\textit{ready} cuya \textit{deadline} est\'e m\'as pr\'oxima, vali\'endonos para eso del arreglo \textit{deadline}, y devolver esa. Vale la pena aclarar
+no peri\'odica en estado \textit{ready}. En caso de haberla, pasar a ejecutar esa; en caso contrario, buscar la tarea peri\'odica en estado
+\textit{ready} cuya \textit{deadline} est\'e m\'as pr\'oxima y devolver esa. Vale la pena aclarar
 que adem\'as, en cada \textit{tick} de reloj, se decrementar\'a el valor contenido en el arreglo \textit{deadline} para cada tarea peri\'odica que est\'e
 lista para ejecutarse. En este punto, hacemos la aclaraci\'on de que hemos dejado fuera de la descripci\'on algunos de los casos borde para los cuales no 
 haya tareas listas para ejecutarse, en que deba devolverse el \textit{pid} de la tarea Idle, ya que no suma a la comprensi\'on del caso en que el algoritmo
@@ -234,14 +235,15 @@ deba buscar, entre las tareas existentes, la m\'as prioritaria.
 \subsection{Ejercicio 6: TaskBatch}
 
 En este ejercicio implementamos la tarea TaskBatch, que recibe como parametros totalcpu y cantbloqueos. Esta tarea dura totalcpu tiempo de 
-cpu, y realiza cantbloqueos llamadas bloqueantes en momentos psudoaleatorios. Realizamos de dos maneras. La primera implementacion toma iteraba totalcpu
+cpu, y realiza cantbloqueos llamadas bloqueantes en momentos psudoaleatorios. Implementamos esta tarea de dos maneras. La primera implementaci\'on itera totalcpu
 veces pidiendo un numero aleatorio rand. Si rand > 0.5 entonces llama a una tarea bloqueante, sino, a una tarea que use el cpu. Si la cantidad 
 de iteraciones se acaba sin haber realizado todas las llamadas bloqueantes, entonces se realizaban las restantes seguidas al final. Sino, cuando se realizaba
 la ultima llamada bloqueante, se utilizaba el tiempo restante del cpu todo junto. Lo que observamos en esta implementacion fue que las llamadas bloqueantes
-se hacian para tiempos grandes siempre al principio del intervalo de uso del cpu, y para tiempos de medianos a cortos, siempre al final.**********
+se hacian para tiempos grandes siempre al principio del intervalo de uso del cpu, y para tiempos de medianos a cortos, siempre al final.
 
-Por eso realizamos otra implementacion. En esta se seleccionan previamente en que momentos se van a realizar las llamadas bloqueantes, y luego se itera 
-sobre el tiempo del cpu.
+Por eso realizamos otra implementacion. En esta se seleccionan previamente en que momentos se van a realizar las llamadas bloqueantes, marcando en un arreglo de totalcpu posiciones los momentos en los que se va
+a llamar la tarea bloqueante. Se decide los momentos de bloqueo eligiendo un numero aleatorio entre 0 y totalcpu, asegurandonos de que no halla repetido. 
+Finalmente iteramos este arreglo y llamamos a UsoIO si debemos hacer un bloqueo y a Uso CPU sino.
 
 
 \subsection{Ejercicio 7}
@@ -475,5 +477,3 @@ por una tarea de tipo B. En este instante, la tarea de tipo A tiene su deadline 
 su deadline a 4 ciclos de clock de distancia, por lo cual el scheduler decidir\'a poner a correr a la tarea de tipo A en vez de la tarea de tipo B.
 Esto le permitir\'a a la tarea de tipo A consumir el \'ultimo ciclo de CPU que necesitaba, y luego el scheduler pondr\'a a correr a la \'ultima
 tarea de tipo B, que terminar\'a sin problemas su ejecuci\'on. As\'i, todas las tareas del lote terminaron su ejecuci\'on antes de su \textit{deadline}.
-
-\subsection{Ejercicio 10}
