@@ -80,19 +80,21 @@ Con esta idea desarrollamos nuestro Scheduler Round-Robin. Utilizamos como estru
 un vector $(quantum)$ con tantas posiciones como cantidad de cores, que almacenar\'a el quantum del i\'esimo n\'ucleo, 
 y otro vector $(contador)$ que va a llevar cuenta del tiempo corrido por el proceso en el i\'esimo n\'ucleo hasta llegar al quantum del mismo.
 
-Para el correcto funcionamiento en la funci\'on $tick$ se ven reflejados los casos en el cual el proceso debe 
-dejar de correr ya sea porque termin\'o su tiempo o el quantum del procesador en el que corr\'ia. En \'este \'ultimo 
-caso, la posici\'on correspondiente al n\'ucleo en $contador$ volver\'a a cero y el proceso se encolar\'a para terminar con su tiempo. 
-\\Una vez realizada dicha acci\'on, debe dar lugar a la siguiente en la cola. En caso de no haber una, se ejecutara la tarea IDLE hasta el llamado de una nueva tarea.
+Para el correcto funcionamiento de la funci\'on $tick$ se ven reflejados los casos en el cual el proceso debe 
+dejar de correr, ya sea porque termin\'o su ejecuci\'on o el quantum del procesador en el que corr\'ia se agot\'o. En \'este \'ultimo 
+caso, la posici\'on correspondiente al n\'ucleo en $contador$ volver\'a a cero y el proceso se encolar\'a para terminar con su tiempo en la pr\'oxima vuelta. 
+\\Una vez realizada dicha acci\'on, debe dar lugar a la siguiente en la cola. En caso de no haber una, se ejecutara la tarea IDLE hasta el llamado de una 
+nueva tarea.
 
 \subsection{Ejercicio 4: Experimentando Round-Robin}
 
 En este ejercicio nos proponemos experimentar con el scheduler del punto anterior para verificar que el comportamiento es el esperado. Haremos esto de 
-manera incremental, es decir, empezaremos probando las cosas mas basicas e iremos subiendo la complejidad. 
+manera incremental, es decir, empezaremos probando las cosas mas b\'asicas e iremos subiendo la complejidad. 
 
-Para empezar, probaremos RR con un solo nucleo. Notese que si le asignamos una sola tarea, su comportamiento no diferiria de alg\'un otro scheduler, por
-lo que empezamos probando con cuatro tareas simultaneas. Estas tareas solo usan al cpu, por lo tanto no se bloquean. Esperamos 
-verificar que el scheduler RR le asigna el tiempo del quantum a cada tarea antes de comenzar de nuevo a iterar la lista de tareas pendientes.
+Para empezar, probaremos Round Robin con un solo n\'ucleo. N\'otese que si le asignamos una sola tarea, su comportamiento no diferir\'ia de cualquier otro 
+scheduler, por lo que empezamos probando con un lote con cuatro tareas. Estas tareas s\'olo usar\'an el cpu, es decir, no har\'an llamadas bloqueantes.
+Esperamos verificar que el scheduler Round Robin le asigna el tiempo del quantum a cada tarea antes de comenzar de nuevo a iterar la lista de tareas
+pendientes.
 
 \vspace{\baselineskip}
 \begin{center}
@@ -103,10 +105,10 @@ verificar que el scheduler RR le asigna el tiempo del quantum a cada tarea antes
 \end{center}
 \vspace{\baselineskip}
 
-Efectivamente, cuando recibe k tareas simultaneas, el scheduler le asigna tiempo de ejecuci\'on a las tareas de modo que todas 
+Efectivamente, cuando recibe $k$ tareas, el scheduler le asigna tiempo de ejecuci\'on a las tareas de modo que todas 
 ejecuten antes de regresar a ejecutar la primera. 
 
-A continuaci\'on usaremos el mismo lote de tareas, pero agregaremos otro procesador. Asi veremos si el scheduler maneja correctamente 
+A continuaci\'on, usaremos el mismo lote de tareas, pero agregaremos otro procesador. As\'i, veremos si el scheduler maneja correctamente 
 los procesadores para asegurarse que todas las tareas ejecuten un tiempo $quantum$ antes de volver a empezar.
 
 \vspace{\baselineskip}
@@ -118,9 +120,9 @@ los procesadores para asegurarse que todas las tareas ejecuten un tiempo $quantu
 \end{center}
 \vspace{\baselineskip}
 
-El comportamiento es identico al anterior, solo que agregando otro nucleo, es decir, podemos deducir las mismas concluciones. Para probar de 
-modo mas realista este scheduler, vamos a simular un lote de cuatro tareas que realicen llamadas bloqueantes, con dos procesadores para su ejecuci\'on.
-Lo que queremos mostrar, es que el scheduler trabajara de manera optima en este caso.
+El comportamiento es id\'entico al anterior, s\'olo que agregando otro nucleo, es decir, podemos deducir las mismas conclusiones. Para probar de 
+modo mas realista este scheduler, simularemos un lote de cuatro tareas que realicen llamadas bloqueantes, con dos procesadores para su ejecuci\'on.
+Lo que queremos mostrar, es que el scheduler trabajara de manera \'optima en este caso, no d\'andole tiempo de CPU a una tarea bloqueada.
 
 \vspace{\baselineskip}
 \begin{center}
@@ -136,7 +138,6 @@ ese procesador carga la tarea y la ejecuta, o bien hasta que se le acabe el quan
 o ejecutando cuando el procesador termina la ejecucion de una tarea porque se bloqueo, este se poner a ejecutar la tarea IDLE hasta que 
 una tarea se desbloque. Y por lo tanto, si todas las tareas estan bloqueadas, ambos procesadores ejecutan la tarea IDLE hasta que alguna 
 tarea se desbloquee.
-
 
 
 \subsection{Ejercicio 5: \textit{Scheduling algorithms for multiprogramming in a hard-real-time environment}}
@@ -163,17 +164,17 @@ las condiciones del sistema, estamos listos para contestar las preguntas:
 \textit{a}) \textquestiondown Qu\'e problema est\'an intentando resolver los autores?
 \newline
 \newline
-Dado un sistema que se ajuste a las condiciones de entorno previamente explicadas, los autores quieren hallar una forma heuristica de organizar la ejecuci\'on de las
+Dado un sistema que se ajuste a las condiciones de entorno previamente explicadas, los autores quieren hallar una forma heur\'istica de organizar la ejecuci\'on de las
 tareas, a medida que estas son solicitadas, de manera tal de que todas terminen su ejecuci\'on antes de su respectiva \textit{deadline}. Para esto, los 
 algoritmos presentados estar\'an basados en prioridades, es decir, c\'omo se le asignar\'a la prioridad a cada tarea variar\'a seg\'un el algoritmo. Luego, los algoritmos
 de scheduling deber\'an desalojar a la tarea que est\'e ocupando el procesador si llega una solicitud para la ejecuci\'on de una
 tarea m\'as prioritaria. Por lo tanto, la clave para este tipo de algoritmos estar\'a en c\'omo se le asignar\'an las prioridades a las tareas.
 \newline
 \newline
-\textit{b}) ?` Por qu\'e introducen el algoritmo de la secci\'on 7? ?`Qu\'e problema buscan resolver con esto?
+\textit{b}) \textquestiondown Por qu\'e introducen el algoritmo de la secci\'on 7? \textquestiondown Qu\'e problema buscan resolver con esto?
 \newline
 \newline
-Los autores introducen el algoritmo de la secci\'on 7, buscando bajar la cota superior de ln 2 sobre el tiempo de utilizaci\'on del procesador establecida 
+Los autores introducen el algoritmo de la secci\'on 7, buscando bajar la cota superior de \verb|ln 2| sobre el tiempo de utilizaci\'on del procesador establecida 
 por el algoritmo de scheduling con prioridades fijas, sin tener que asumir ninguna hip\'otesis extra para los tiempos de ejecuci\'on de las tareas, ni tampoco 
 necesitar relajar las \textit{deadlines} de las tareas menos prioritarias seg\'un el esquema anterior. Para lograr esto, introducen el algoritmo de 
 scheduling con prioridades asignadas din\'amicamente; es decir, a lo largo de la ejecuci\'on del sistema, las prioridades de las tareas no estar\'an
@@ -206,7 +207,7 @@ largo de toda la simulaci\'on.
 En este inciso explicaremos brevemente en qu\'e consiste cada algoritmo de scheduling, y luego el dise\~no y la implementaci\'on de cada uno.
 
 Como su nombre indica, el algoritmo de scheduling con prioridades fijas le asignar\'a a las tareas una prioridad que se mantendr\'a fija a lo largo de 
-toda la ejecuci\'on del sistema. Concretamente, una tarea ser\'a m\'as prioritaria que otra cuando su per\'iodo, lease el tiempo constante transcurrido entre
+toda la ejecuci\'on del sistema. Concretamente, una tarea ser\'a m\'as prioritaria que otra cuando su per\'iodo, l\'ease el tiempo constante transcurrido entre
 dos solicitudes por dicha tarea, sea el menor de los dos. O equivalente, que su \textit{request rate}, definido como el inverso multiplicativo del per\'iodo,
 sea mayor. 
 
@@ -230,7 +231,7 @@ Por lo tanto, contaremos con los siguientes arreglos:
   \item \textit{bool ready[total tasks]} indicar\'a, para la tarea i\'esima, si est\'a lista para correr o no.
 \end{itemize}
 
-Adicionalmente, implementaos la funcion \textit{int tareasready()}, que devolver\'a la cantidad de tareas en estado \textit{ready}.
+Adicionalmente, implementamos la funcion \textit{int tareasready()}, que devolver\'a la cantidad de tareas en estado \textit{ready}.
 Para obtener, en cada \textit{tick} de reloj, la pr\'oxima tarea a ejecutarse, implementamos una funci\'on de acuerdo a la siguiente l\'ogica:
 Si est\'a corriendo una tarea no peri\'odica, seguir ejecutando esa. En caso contrario, verificar, en primer lugar, si hay alguna tarea
 no peri\'odica en estado \textit{ready}. En caso de haberla, pasar a ejecutar esa; en caso contrario, buscar la tarea peri\'odica en estado
@@ -242,24 +243,24 @@ deba buscar, entre las tareas existentes, la m\'as prioritaria.
 
 \subsection{Ejercicio 6: TaskBatch}
 
-En este ejercicio implementamos la tarea TaskBatch, que recibe como parametros totalcpu y cantbloqueos. Esta tarea dura totalcpu tiempo de 
-cpu, y realiza cantbloqueos llamadas bloqueantes en momentos psudoaleatorios. Implementamos esta tarea de dos maneras. La primera implementaci\'on itera totalcpu
-veces pidiendo un numero aleatorio rand. Si rand > 0.5 entonces llama a una tarea bloqueante, sino, a una tarea que use el cpu. Si la cantidad 
+En este ejercicio implementamos la tarea TaskBatch, que recibe como parametros \verb|totalcpu| y \verb|cantbloqueos|. Esta tarea dura, en total, \verb|totalcpu| 
+ciclos de clock, y realiza \verb|cantbloqueos| llamadas bloqueantes en momentos psudoaleatorios. Implementamos esta tarea de dos maneras. La primera implementaci\'on itera totalcpu
+veces pidiendo un numero aleatorio rand. Si rand > 0.5, entonces har\'a una llamada bloqueante, sino, a una tarea que use el cpu. Si la cantidad 
 de iteraciones se acaba sin haber realizado todas las llamadas bloqueantes, entonces se realizaban las restantes seguidas al final. Sino, cuando se realizaba
 la ultima llamada bloqueante, se utilizaba el tiempo restante del cpu todo junto. Lo que observamos en esta implementacion fue que las llamadas bloqueantes
 se hacian para tiempos grandes siempre al principio del intervalo de uso del cpu, y para tiempos de medianos a cortos, siempre al final.
 
-Por eso realizamos otra implementacion. En esta se seleccionan previamente en que momentos se van a realizar las llamadas bloqueantes, marcando en un arreglo de totalcpu posiciones los momentos en los que se va
-a llamar la tarea bloqueante. Se decide los momentos de bloqueo eligiendo un numero aleatorio entre 0 y totalcpu, asegurandonos de que no halla repetido. 
-Finalmente iteramos este arreglo y llamamos a UsoIO si debemos hacer un bloqueo y a Uso CPU sino.
-
+Por eso realizamos otra implementacion. En esta se seleccionan previamente en que momentos se van a realizar las llamadas bloqueantes, marcando en un arreglo de \verb|totalcpu| 
+posiciones los momentos en los que se va a llamar la tarea bloqueante. Se decide los momentos de bloqueo eligiendo un numero aleatorio entre 0 y totalcpu, 
+asegurandonos de que no halla repetido. 
+Finalmente, iteramos este arreglo y llamamos a UsoIO si debemos hacer un bloqueo y a Uso CPU (pas\'andole 1 ciclo de clock por par\'ametro) en caso contrario.
 
 \subsection{Ejercicio 7}
 En el siguiente ejercicio, se nos pide escoger distintas m\'etricas para poder analizar el rendimiento del Shcheduler Round Robin para tareas de tipo TaskBatch.\\
 A continuaci\'on, daremos algunos detalles de las mismas\\
 
 \textbf{\underline{Fariness}}\\
-Medimos que cada proceso reciba una dosis "justa" de CPU. Es decir, todos los procesos deben correr la misma cantidad de tiempo, en el caso de Round Robin, podemos decir el quantum que se le asigna a los procesos sea el mismo en todos los casos.\\
+Medimos que cada proceso reciba una dosis "justa" de CPU. Es decir, todos los procesos deben correr la misma cantidad de tiempo; en el caso de Round Robin, podemos decir el quantum que se le asigna a los procesos sea el mismo en todos los casos.\\
 
 \textbf{\underline{Tiempo de Respuesta}}\\
 En este caso, ser\'ia el tiempo que tarda una tarea en empezar a ejecutarse.
@@ -273,9 +274,9 @@ Esto depender\'a de la cantidad de bloqueos que tenga cada proceso y como se org
 \textbf{\underline{Turnaround}}\\
 Es el tiempo total que le toma a un proceso su ejecuci\'on completa, contando bloqueos y cantidad de corridas en quantums de alg\'un n\'ucleo del CPU.\\
 
-Para este ejercicio escogemos las m\'etricas \textit{Tiempo de Respuesta} y \textit{Turnaround}
+Para este ejercicio escogimos las m\'etricas \textit{Tiempo de Respuesta} y \textit{Turnaround}
 
-Para empezar, tomaremos una CPU con un solo n\'ucleo y con un quantum de 3 clocks.\\
+Para empezar, tomaremos una arquitectura con un solo n\'ucleo y con un quantum de 3 clocks.\\
 \vspace{\baselineskip}
 \begin{center}
 \includegraphics[scale=0.45]{../tp1/Test/resEj7Co1.png}
@@ -287,11 +288,11 @@ Para empezar, tomaremos una CPU con un solo n\'ucleo y con un quantum de 3 clock
 
 
 \textit{Tiempo de Respuesta}\\
-Para esta m\'etrica el Scheduler no es \'optimo ya que en nuestro experimento, al tener un solo n\'ucleo, cada proceso va a tener que esperar el comienzo de los anteriores en la cola, por lo tanto estar\'a m\'as tiempo en estado ready esperando comenzar la ejecuci\'on.\\
+Para esta m\'etrica el Scheduler no es \'optimo ya que, en nuestro experimento, al tener un solo n\'ucleo, cada proceso va a tener que esperar el comienzo de los anteriores en la cola, por lo tanto estar\'a m\'as tiempo en estado ready esperando comenzar la ejecuci\'on.\\
 \textit{Turnaround}\\
 Al igual que la m\'etrica estudiada anteriormente, el tiempo de respuesta influye en esta medida, ya que el proceso va a demorar en comenzar. \\
 Otro factor que influye en esto es el quantum y la cantidad de n\'ucleos que tiene el procesador, ya que pudimos ver que al tener poco no es lo suficientemente bueno.Por eso nos preguntamos que pasar\'ia si los aumentamos.\\
-De esta manera pueden suceder dos cosas, la primera que tengan la misma cantidad de quantum ambos n\'ucleos, y la segunda que sean distintos.
+De esta manera pueden suceder dos cosas: la primera, que tengan la misma cantidad de quantum ambos n\'ucleos y, la segunda, que sean distintos.
 A continuaci\'on, estudiaremos ambos casos.\\
 \vspace{\baselineskip}
 \begin{center}
@@ -302,8 +303,8 @@ A continuaci\'on, estudiaremos ambos casos.\\
 \end{center}
 \vspace{\baselineskip}
 
-Si nos basamos en la teor\'ia, podemos decir que cuando el Scheduler corre con dos n\'ucleos en el caso de \textit{Tiempo de Respuesta} va a mejorar en comparaci\'on al procesador con un n\'ucleo ya que hay uno m\'as que puede ser utlizado, lo cual disminuye el tiempo en que un proceso debe esperar en ready.\\
-Utilizando como m\'etrica \textit{Turnaround} concluimos que la mejora con respecto al primer experimento es que adem\'as de que alg\'un proceso comenzar\'a a ejecutarse antes, ya que ahora  hay un n\'ucleo m\'as, al suceder esto tambien tiene menos tiempo de espera entre corridas, el cual puede variar seg\'un el tiempo de migraci\'on de cada n\'ucleo.
+Si nos basamos en la teor\'ia, podemos decir que cuando el Scheduler corre con dos n\'ucleos, el \textit{Tiempo de Respuesta} va a mejorar en comparaci\'on al procesador con un n\'ucleo, ya que hay uno m\'as que puede ser utlizado, lo cual disminuye el tiempo en que un proceso debe esperar en ready.\\
+Utilizando como m\'etrica \textit{Turnaround}, concluimos que la mejora con respecto al primer experimento es que adem\'as de que alg\'un proceso comenzar\'a a ejecutarse antes, ya que ahora hay un n\'ucleo m\'as, al suceder esto tambi\'en tiene menos tiempo de espera entre corridas, el cual puede variar seg\'un el tiempo de migraci\'on de cada n\'ucleo.
 
 
 \vspace{\baselineskip}
@@ -315,15 +316,15 @@ Utilizando como m\'etrica \textit{Turnaround} concluimos que la mejora con respe
 \end{center}
 \vspace{\baselineskip}
 
-Luego, en el caso de tener quantum distintos el \textit{Tiempo de Respuesta} no difiere demasiado del caso de tener iguales, esto puede variar seg\'un la distribuci\'on de los quantum en los n\'ucleos, ya que en el caso de tener uno muy grande y otro muy chico, el primero estar\'a ocupado mucho tiempo lo cual ser\'ia equivalente a tener uno solo con un tiempo peque\~no.\\
-Podemos notar diferencias en \textit{Turnaround}, la mejora con respecto al anterior es que el proceso que sea beneficiado con el n\'ucleo con mayor quantum tiene posibilidades de terminar antes.
+Luego, en el caso de tener quantum distintos, el \textit{Tiempo de Respuesta} no difiere demasiado del caso de tener iguales. Esto puede variar seg\'un la distribuci\'on de los quantum en los n\'ucleos, ya que en el caso de tener uno muy grande y otro muy chico, el primero estar\'a ocupado mucho tiempo, lo cual ser\'ia equivalente a tener uno solo con un tiempo peque\~no.\\
+Podemos notar diferencias en \textit{Turnaround}: la mejora con respecto al anterior es que el proceso que sea beneficiado con el n\'ucleo con mayor quantum tiene posibilidades de terminar antes.
 
 
 \vspace{0,5 cm}
-Podemos concluir con estos experimentos que, deducir que si un Scheduler es \'optimo varia seg\'un algunos factores y que m\'etrica estemos utilizando.\\
-Pudimos ver que \textit{Tiempo de Respuesta} varia segun la cantidad de n\'ucleos y, de tener distintos quantums, esto puede mejorar los resultados.\\
-Para \textit{Turnaround} depende de varias cosas, en caso de que los quantums sean iguales la mejora se encuentra en que tenemos un n\'ucleo mas y el proceso tendra m\'as chances para comenzar su ejecuci\'on, pero si tenemos disintos podemos obtener resultados a\'un mas satifactorios segun de cada proceso ya que alguno resltar\'a beneficiado.\\
-Si ampliamos nuestro experimento a un caso con muchos procesos y n\'cleos la m\'etrica m\'as adecuada para obtener resultados satifactorios ser\'a \textit{Turnaround} teniendo distintos quantums los procesos beneficiados ser\'an a\'un m\'as. \\
+Podemos concluir con estos experimentos que, deducir que si un Scheduler es mejor var\'ia seg\'un algunos factores y que m\'etrica estemos utilizando.\\
+Pudimos ver que \textit{Tiempo de Respuesta} var\'ia segun la cantidad de n\'ucleos y, de tener distintos quantums, esto puede mejorar los resultados.\\
+Para \textit{Turnaround} depende de varias cosas: en caso de que los quantums sean iguales, la mejora se encuentra en que tenemos un n\'ucleo mas y el proceso tendra m\'as chances para comenzar su ejecuci\'on, pero si tenemos distintos podemos obtener resultados a\'un mas satifactorios, seg\'un el proceso que resulte beneficiado.\\
+Si ampliamos nuestro experimento a un caso con muchos procesos y n\'cleos la m\'etrica m\'as adecuada para obtener resultados satifactorios ser\'a \textit{Turnaround}, pues teniendo distintos quantums los procesos beneficiados ser\'an a\'un m\'as. \\
 Si bien el \textit{Tiempo de Respuesta} va a mejorar, si se tienen muchos procesos, a\'un teniendo muchos procesadores los que se encuentren en la cola van a tener que esprar a que los mismos sean desocupados.
 
 \subsection{Ejercicio 8: Round Robin sin migraci\'on}
