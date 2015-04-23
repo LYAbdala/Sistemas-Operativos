@@ -1,32 +1,39 @@
 \section{Ejercicios}
 
 \subsection{Ejercicio 1: TaskConsola}
-En \'este ejercicio debemos programar una tarea \textit{TaskConsola} la cual debe realizar n llamadas bloqueantes, cada una con 
-una duraci\'on al azar entre bmin y bmax, ambas pasadas por par\'ametro.
+En este ejercicio, debimos programar una tarea \textit{TaskConsola}, la cual debe realizar $n$ llamadas bloqueantes, cada una con 
+una duraci\'on al azar entre los n\'umeros $bmin$ y $bmax$, que la tarea recibir\'a como par\'ametro.
 
-Para ello, decidimos utilizar un contador de 0 hasta n y generar un n\'umero pseudo-alaeatorio por medio de la 
-funci\'on \textit{rand}. Es decir, cada vez que se aumenta el contador, realizamos una llamada bloqueante (uso\_IO) 
-que durar\'a la cantidad de ciclos que se haya generado en la llamada a rand.
+Para ello, decidimos generar, $n$ veces, un n\'umero pseudo-aleatorio por medio de la 
+funci\'on \textit{rand()} (devolver\'a un n\'umero aleatorio entre 0 y 1) y luego, mediante la f\'ormula:
+
+\begin{verbatim}
+ random = b_min + (rand() % (int)(b_max-b_min+1));
+\end{verbatim}
+
+tendremos un n\'umero aleatorio en el rango deseado. 
+Luego, para cada n\'umero aleatorio generador, realizamos una llamada bloqueante (uso\_IO) 
+que durar\'a tantos ciclos de clock como indique el n\'umero aleatorio generado.
 
 \subsection{Ejercicio 2: Experimentando FCFS}
-Para probar el Scheduler First Came First Served usaremos el siguiente lote de tareas:
+Para probar el Scheduler First Came First Served, usaremos el siguiente lote de tareas:
 
-\begin{center}
-TaskCPU 10\\
-TaskConsola 5 1 5\\
-TaskConsola 3 1 2
-\end{center}
+\begin{verbatim}
+  TaskCPU 10
+  TaskConsola 5 1 5
+  TaskConsola 3 1 2
+\end{verbatim}
 
-En la primera, utlizaremos TaskCPU y para darle uso intensivo correr\'a durante 10 ciclos de reloj.
-Las siguientes, son de tipo TaskConsola implementado anteriormente, pas\'andole como par\'ametro el n\'umero de llamadas 
+En la primera, utlizaremos TaskCPU y, para simular el uso intensivo, correr\'a durante 10 ciclos de reloj.
+Las siguientes tareas son del tipo TaskConsola implementado anteriormente, pas\'andole como par\'ametro el n\'umero de llamadas 
 bloqueantes y el rango en el cual debe seleccionar el n\'umero aleatorio.
 
-En el algoritmo FCFS, la CPU se asigna a los procesos en el orden en que la solicitan.\\
+En el algoritmo FCFS, la CPU se asigna a los procesos en el orden en que son solicitan.\\
 Por lo tanto, esperamos observar que, con un solo n\'ucleo, un proceso no pueda correr 
-hasta que no terminaron los anteriores a el.
+hasta que no terminaron los anteriores a \'el.
 
-Con dos nucleos, correr\'an dos procesos simlt\'aneamente y el \'ultimo empezar\'a cuando alguno de los otros dos finalicen,
-y por \'ultimo, si el procesador tiene 3 n\'ucleos, los 3 correr\'an al mismo tiempo.
+Por otro lado, al correr la simulaci\'on con dos nucleos, correr\'an dos procesos simlt\'aneamente y el tercero empezar\'a cuando alguno de los otros 
+dos finalice y, por \'ultimo, si el procesador tiene 3 n\'ucleos, los 3 correr\'an en simult\'aneo, uno en cada n\'ucleo.
 
 \vspace{\baselineskip}
 \begin{center}
@@ -60,16 +67,17 @@ y por \'ultimo, si el procesador tiene 3 n\'ucleos, los 3 correr\'an al mismo ti
 Los experimentos corroboraron nuestra hip\'otesis, pues el comportamiento reflejado es exactamente el descripto previamente.
 
 Adem\'as, notemos que en los casos en los que utilizamos la tarea TaskConsola, se observan claramente
-las llamadas bloqueantes de manera random, dado que el tiempo tanto de la ejecuci\'on como el de las llamadas bloqueantes var\'ia.
-En el caso en que el procesador tiene tres n\'ucleos, se observa que los n\'ucleos 2 y 0 ejecutan 
-Idle ya que est\'an desocupadas, esperando la solicitud del pr\'oximo proceso.
+las llamadas bloqueantes de manera aleatoria, dado que el tiempo tanto de la ejecuci\'on como el de las llamadas bloqueantes var\'ia.
+En el caso en que el procesador tiene tres n\'ucleos, se observa que los n\'ucleos 2 y 0 ejecutan la tarea
+Idle, ya que est\'an desocupados, esperando la solicitud del pr\'oximo proceso.
 
 \subsection{Ejercicio 3: Implementando Round-Robin}
-La idea del scheduler \textit{Round-Robin} es darle un quantum a cada proceso, iterando los mismos para que todos ejecuten una vez antes de volver a comenzar la iteraci\'on.
+La idea del scheduler \textit{Round-Robin} es asignarle un quantum a cada procesador y luego, ir iterando los procesos, 
+para que todos ejecuten una vez (durante el quantum que le fue asignado al procesador, o menos, en caso de que terminen
+o se bloqueen antes) antes de volver a comenzar la iteraci\'on.
 
-
-Con esta idea desarrollamos nuestro Scheduler Round-Robin. Utilizamos como estructura una Cola $(q)$, para las llamadas a los procesos, 
-un vector $(quantum)$ de tama\~no cantidad de cores del procesador que asignar\'a el quantum del i\'esimo n\'ucleo, 
+Con esta idea desarrollamos nuestro Scheduler Round-Robin. Utilizamos como estructura una cola $(q)$ para almacenar los \verb|id| de los procesos, 
+un vector $(quantum)$ con tantas posiciones como cantidad de cores, que almacenar\'a el quantum del i\'esimo n\'ucleo, 
 y otro vector $(contador)$ que va a llevar cuenta del tiempo corrido por el proceso en el i\'esimo n\'ucleo hasta llegar al quantum del mismo.
 
 Para el correcto funcionamiento en la funci\'on $tick$ se ven reflejados los casos en el cual el proceso debe 
@@ -317,37 +325,53 @@ Pudimos ver que \textit{Tiempo de Respuesta} varia segun la cantidad de n\'ucleo
 Para \textit{Turnaround} depende de varias cosas, en caso de que los quantums sean iguales la mejora se encuentra en que tenemos un n\'ucleo mas y el proceso tendra m\'as chances para comenzar su ejecuci\'on, pero si tenemos disintos podemos obtener resultados a\'un mas satifactorios segun de cada proceso ya que alguno resltar\'a beneficiado.\\
 Si ampliamos nuestro experimento a un caso con muchos procesos y n\'cleos la m\'etrica m\'as adecuada para obtener resultados satifactorios ser\'a \textit{Turnaround} teniendo distintos quantums los procesos beneficiados ser\'an a\'un m\'as. \\
 Si bien el \textit{Tiempo de Respuesta} va a mejorar, si se tienen muchos procesos, a\'un teniendo muchos procesadores los que se encuentren en la cola van a tener que esprar a que los mismos sean desocupados.
-\subsection{Ejercicio 8: Round Robin sin migracion}
 
-En este ejercicio implementamos un scheduler Round Robin  que no permite migraciones entre procesos, llamado RoundRobin2. Para lograr esto, mantenemos una
-cola por procesador 
-y un contador que controla cuantas tareas hay activas por cpu. Para asignar una tarea a un cpu, nos basta con recorrer los contadores 
-y quedarnos con alguno
-de los de valor minimo. Ademas, cada vez que una tarea se bloquea, almacenamos en una variable cual
-es el procesador al que estaba asignada. De este modo, para todos los procesadores, podemos ejecutar como si fuera Round Robin comun. La diferencia
-radica en que cuando una tarea se bloquea, se almacena el valor de cpu de la misma. Cuando la tarea se desbloquea, basta con buscar su
-cpu y pushearla en la cola del mismo.
+\subsection{Ejercicio 8: Round Robin sin migraci\'on}
 
-Vamos a comparar esta version del scheduler Round Robin con la presentada en el ejercicio 3. Los schedulers tiene diferente comportamiento solo en 
-determinados casos, que son lo que vamos a analizar. Dejaremos los puntos en comun de lado, como por ejemplo, la rotacion total de las tareas.
-Por lo tanto, compararemos la optimalidad en el uso de los procesadores. Es decir, compararemos la cantidad de tiempo de cpu despercidiado. 
-Para esto correremos con dos procesadores el siguiente lote de tareas:
-\begin{center}
-TaskCPU 10\\
-TaskCPU 5\\
-TaskCPU 20
-\end{center}
- La idea de es comparar cuanto tarda cada scheduler en completar el procesamiento total. Notese que pusimos la tarea de mejor ejucucion en el medio 
- aproposio. Asi forzamos al RR2 a usar un procesador unicamente para una tarea corta, mientras que debe usar el otro para dos tareas grandes.
- Es decir, estamos forzando un caso concreto para representar casos mas generales. Ademas, se debe tener el cuenta que el costo de migracion 
- es de 2 tick, lo cual es bajo teniendo en cuenta todos los datos que se podrian tener que duplicar.
+En este ejercicio implementamos una nueva versi\'on del scheduler Round Robin, llamada RoundRobin2, cuya diferencia con la implementaci\'on original
+es que no permite migraciones de procesos entre n\'ucleos. En primer lugar, detallaremos las estructuras de datos utilizadas para el dise\~no de
+este scheduler, y luego pasaremos a mostrar los resultados de nuestra experimentaci\'on.
+
+Para el dise\~no del scheduler, decidimos utilizar un arreglo de colas (con tantas posiciones como procesadores haya) y un arreglo de contadores de la misma 
+longitud. La cola i\'esima del arreglo contendr\'a los process id de las tareas asignadas a dicho procesador, mientras que el contador i\'esimo tendr\'a un 
+valor correspondiente a cu\'antas tareas hay activas en dicho procesador. Teniendo estas estructuras de datos, la asignaci\'on de una tarea a un cpu consistir\'a
+en recorrer el arreglo de contadores y devolver el \'indice de alguno de los que tenga valor m\'inimo. 
+Adicionalmente, contaremos con una lista de pares de la forma $<pid,cpu>$, para guardar informaci\'on sobre las tareas bloqueadas de la siguiente manera: 
+cada vez que una tarea se bloquee, almacenaremos una dupla de esa manera, para saber a qu\'e procesador estaba asignada. Cuando dicha tarea se desbloquee,
+bastar\'a con buscarla en la lista de pares, obtener el $cpu$ al que estaba asignada previamente, y volverla a encolar en la cola correspondiente, evitando
+as\'i la migraci\'on entre n\'ucleos.
+
+Contando con estas estructuras tendremos, mirando individualmente a cada procesador, un funcionamiento an\'alogo al de la primera implementaci\'on
+de Round Robin, es decir, un recorrido circular por las tareas, con un quantum m\'aximo en que las tareas podr\'an ejecutarse.
+
+Ahora pasaremos a comparar esta versi\'on del scheduler Round Robin con la presentada en el ejercicio 3. Estas implementaciones exhibir\'an comportamientos 
+diferentes solo en determinados casos, que ser\'an los usaremos como ejemplos, mientras que las similitudes entre los comportamientos de las dos pol\'iticas
+de scheduling ser\'an dejados de lado en nuestro an\'alisis (por ejemplo, la rotacion total de 
+las tareas). Por lo tanto, compararemos la eficiencia en el uso de los procesadores, para lo cual usaremos como indicador la cantidad de tiempo de cpu 
+utilizado en cada una de las implementaciones.
+Para esto, correremos con dos procesadores el siguiente lote de tareas:
+
+\begin{verbatim}
+    &TaskCPU 10
+    &TaskCPU 5
+    &TaskCPU 20
+\end{verbatim}
+
+ La idea ser\'a comparar cu\'anto tarda cada scheduler en completar el procesamiento total. N\'otese que creamos este caso ubicando 
+ intencionadamente la tarea de menor ejecuci\'on en el medio. Esto forzar\'a al RoundRobin2 a usar uno de los procesadores 
+ para ejecutar \'unicamente una tarea corta, mientras que deber\'a usar el otro para dos tareas temporalmente m\'as costosas.
+ Es decir, mediante este lote de tareas, estamos representando en general a aquellos casos en que la asignaci\'on de los procesadores 
+ para las tareas sea poco equitativa (el cual, por otro lado, es un escenario perfectamente posible, pues el scheduler no tiene porqu\'e
+ saber cu\'an costosas ser\'an las tareas a ejecutar). Adicionalmente, se debe tener en cuenta que el costo de migracion 
+ es de 2 ticks de reloj, el cual es un costo relativamente bajo teniendo en cuenta que, en un procesador real, migrar entre procesadores
+ llevar\'ia a invalidar algunas memoias cach\'e, lo cual afectar\'ia m\'as significativamente el rendimiento.
 
 \vspace{\baselineskip}
 \begin{center}
 \includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR.png}
 \\
 \vspace{1pt}
-\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\Con 2 tick de costo de migracion.}
+\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\CCon costo de migracion de 2 ticks.}
 \end{center}
 \vspace{\baselineskip}
 
@@ -356,19 +380,19 @@ TaskCPU 20
 \includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR2.png}
 \\
 \vspace{1pt}
-\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3\\Con 2 tick de costo de migracion.}
+\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3\\Con costo de migracion de 2 ticks.}
 \end{center}
 \vspace{\baselineskip}
 
 Como podemos observar, el tiempo para obtener la ejecucion total es mucho mayor en RR2, ya que no puede usar uno de los procesadores. 
-\textquestiondown Pero que pasaria si el costo de migrar entre proesadores fuera mayor? Digamos, mas del doble del quantum...
+\textquestiondown Pero, \textquestiondown qu\'e pasar\'ia si el costo de migrar entre proesadores fuera mayor? Digamos, mas del doble del quantum...
 
 \vspace{\baselineskip}
 \begin{center}
 \includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRRMM.png}
 \\
 \vspace{1pt}
-\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\Con 7 tick de costo de migracion.}
+\footnotesize\textit{Simulacro RR con 2 n\'ucleos de quantum 3.\\Con 7 ticks de costo de migraci\'on.}
 \end{center}
 \vspace{\baselineskip}
 
@@ -377,18 +401,20 @@ Como podemos observar, el tiempo para obtener la ejecucion total es mucho mayor 
 \includegraphics[scale=0.45]{../tp1/Test/resEj8Co2SBRR2MM.png}
 \\
 \vspace{1pt}
-\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3.\\Con 7 tick de costo de migracion.}
+\footnotesize\textit{Simulacro RR2 con 2 n\'ucleos de quantum 3.\\Con 7 ticks de costo de migracion.}
 \end{center}
 \vspace{\baselineskip}
 
-Podemos notar que aunque la diferencia se redujo, el tiempo total de RR2 sigue siendo mayor que el de RR. Por lo tanto, solo nos resta concluir que 
-no permitir migracion entre procesadores es un error. Esto sujeto a condiciones normales.  Si tuviesemos un costo de migracion ridiculamente alto, 
-si trabajasemos fuera de la cache para la migracion, 
-entonces deberia considerarse realizar una nueva experimentacion comparando los nuevos porcentajes.
+Podemos notar que, si bien la diferencia se redujo, el tiempo total de RR2 sigue siendo mayor que el de RR. Por lo tanto, concluimos en que 
+no permitir la migraci\'on entre procesadores resulta en un rendimiento peor que permiti\'endola. Sin embargo, vale la pena notar que nuestra 
+experimentaci\'on contempla los casos para los cuales el costo de migrar una tarea de un procesador a otro no es excesivamente mayor al doble
+del quantum de los procesadores, y ser\'ia un interesante experimento futuro (que dejamos afuera por lo acotado del tiempo para hacer este informe)
+comprobar el comportamiento de estas dos pol\'iticas de scheduling con tiempos de migraci\'on progresivamente mayores, y dejando fijo el quantum
+de los procesadores.
 
-\subsection{Ejercicio 9}
+\subsection{Ejercicio 9: Prioridades fijas vs Prioridades Din\'amicas}
 
-En este ejercicio, debimos idear un lote de tareas que cumpliera en simult\'aneo, las siguientes condiciones:
+Para este ejercicio, debimos idear un lote de tareas que cumpliera, en simult\'aneo, las siguientes condiciones:
 
 \begin{itemize}
  \item Tener un scheduling no factible para el algoritmo de prioridades fijas
@@ -398,7 +424,7 @@ En este ejercicio, debimos idear un lote de tareas que cumpliera en simult\'aneo
 El lote que propusimos para este experimento es el siguiente:
 
 \begin{verbatim}
-  lote.tsk:
+  lote-ej9.tsk:
     &A1,10,4
     &B3,4,1
 \end{verbatim}
@@ -408,7 +434,13 @@ de tareas de tipo B, con 1 ciclo de clock de tiempo de ejecuci\'on y per\'iodo i
 de per\'iodos y tiempos de ejecuci\'on, la tarea A no terminar\'a de ejecutarse antes de su \textit{deadline} (ciclo de clock n\'umero 10) 
 para el scheduler de prioridades fijas. Es importante notar que a los tiempos de ejecuci\'on de las dos familias de tareas hay que sumarle el ciclo
 de clock extra correspondiente a la llamada a \textit{exit()}. Por lo tanto, la tarea A requerir\'a de 5 ciclos para completar su ejecuci\'on, y las tareas 
-B requerir\'an de 2 ciclos cada una.
+B requerir\'an de 2 ciclos cada una. 
+\\
+El raz\'onamiento que nos llev\'o a elegir este lote de tareas para este ejercicio fue el siguiente: si una tarea con una per\'iodo muy largo respecto
+de la cantidad de ciclos de clock necesaria para su ejecuci\'on (en nuestro ejemplo, esta tarea es la A) es continuamente interrumpida por muchas 
+solicitudes para ejecutar tareas de per\'iodo muy corto (las B, en nuestro ejemplo), el scheduler de prioridades fijas siempre elegir\'ia a las de 
+per\'iodo corto, mientras que el de prioridades din\'amicas tomar\'ia en cuenta cu\'anto falta para que haya un \textit{overflow} causado por la tarea de
+per\'iodo largo y, estando cerca de la deadline de dicha tarea, le dar\'ia, finalmente, el uso del procesador para que pueda terminar su ejecuci\'on.
 
 Veamos el diagrama de Gantt para este lote, con scheduling con prioridades fijas:
 
@@ -443,3 +475,12 @@ por una tarea de tipo B. En este instante, la tarea de tipo A tiene su deadline 
 su deadline a 4 ciclos de clock de distancia, por lo cual el scheduler decidir\'a poner a correr a la tarea de tipo A en vez de la tarea de tipo B.
 Esto le permitir\'a a la tarea de tipo A consumir el \'ultimo ciclo de CPU que necesitaba, y luego el scheduler pondr\'a a correr a la \'ultima
 tarea de tipo B, que terminar\'a sin problemas su ejecuci\'on. As\'i, todas las tareas del lote terminaron su ejecuci\'on antes de su \textit{deadline}.
+Aqu\'i vale la pena notar que, si bien consideramos que era m\'as claro mostrar exactamente en qu\'e punto de la ejecuci\'on (y por qu\'e) difieren las 
+pol\'iticas de los dos schedulers utilizados en este ejercicio, era f\'acil verificar que el scheduling con prioridades din\'amicas para este lote era
+factible recurriendo al teorema 7 del art\'iculo analizado en el ejercicio 5. En efecto, reemplazando todos los valores en la f\'ormula del teorema:
+
+\begin{equation*}
+ C_{1}/T_{1} + C_{2}/T_{2} = (5/10) + (2/4) = 1 \leq 1
+\end{equation*}
+
+como quer\'iamos ver.
