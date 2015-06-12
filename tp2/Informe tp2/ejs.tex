@@ -1,0 +1,52 @@
+\section{Ejercicios}
+
+\subsection{Ejercicio 1: Read-Write Lock}
+Para este ejercicio nos basamos en el libro \textit{"The Little Book of Semaphores" (Seccion 4.2)}. En la misma se analiza y resuelve el problema en el cual varios threads escriben o leen los mismos datos. Pueden leer varios al mismo tiempo, pero solo uno podra escribir.
+Al igual que en nuestro Scrabble, queremos que esto suceda para evitar inanicion.
+Incluimos como variables un pthread\_mutex\_t llamado \textit{roomEmpty} el cual se activa cuando no hay threads (leyendo o escribiendo) en la seccion critica, y un int \textit{cantidadDeSolicitudes} que son la cantidad de threads leyendo.
+
+Para la lectura modificamos las funciones de la siguiente forma:\\
+En el caso del lock
+
+\begin{verbatim}
+void RWLock::rlock(){
+IF (cantidadDeSolicitudes == 0){			//No habia nadie en la seccion critica
+    pthread_mutex_lock(&roomEmpty);		//Bloqueo roomEmpty porque ahora ingresara alguien y dejara de estarlo
+}
+cantidadDeSolicitudes++;					//Aumento en uno cantidadDeSolicitudes por el nuevo ingresante;
+}
+\end{verbatim}
+
+Para el unlock
+\begin{verbatim}
+void RWLock::runlock(){
+cantidadDeSolicitudes--;	         //Disminuyo cantidadDeSolicitudes porque uno dejara de leer
+IF (!cantidadDeSolicitudes){	              //Si no queda nadie en la seccion critica
+    pthread_mutex_unlock(&roomEmpty);        //activo la sen\~al de roomEmpty para el que quiera escribir
+	}
+}
+\end{verbatim}
+
+En el caso de la escritura no debemos permitir que haya mas de un thread en la seccion critica.
+ En el caso del lock:
+ 
+\begin{verbatim}
+void RWLock::wlock(){
+pthread_mutex_lock(&roomEmpty);		//Bloqueamos la variable roomEmpty para que nadie pueda acceder
+}
+\end{verbatim}
+
+Para el unlock:
+\begin{verbatim}
+void RWLock::wunlock(){
+pthread_mutex_unlock(&roomEmpty);		//Liberamos roomEmpty para que puedan acceder otros
+}
+\end{verbatim}
+
+
+
+
+
+
+
+\subsection{Ejercicio 2: Backend Multithreaded}
