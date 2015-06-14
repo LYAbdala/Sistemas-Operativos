@@ -13,6 +13,7 @@ class RWLock {
     private:
         //pthread_rwlock_t rwlock;
         pthread_mutex_t roomEmpty;
+        pthread_mutex_t mutexSolicitudes;
         int cantidadDeSolicitudes;
 };
 
