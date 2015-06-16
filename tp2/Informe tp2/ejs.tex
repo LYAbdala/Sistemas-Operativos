@@ -1,52 +1,109 @@
 \section{Ejercicios}
 
 \subsection{Ejercicio 1: Read-Write Lock}
-Para este ejercicio nos basamos en el libro \textit{"The Little Book of Semaphores" (Seccion 4.2)}. En la misma se analiza y resuelve el problema en el cual varios threads escriben o leen los mismos datos. Pueden leer varios al mismo tiempo, pero solo uno podra escribir.
-Al igual que en nuestro Scrabble, queremos que esto suceda para evitar inanicion.
-Incluimos como variables un pthread\_mutex\_t llamado \textit{roomEmpty} el cual se activa cuando no hay threads (leyendo o escribiendo) en la seccion critica, y un int \textit{cantidadDeSolicitudes} que son la cantidad de threads leyendo.
+Para resolver este ejercicio, nos basamos en la soluci\'on al \textit{Readers-Writers Problem}, introducido en la secci\'on 4.2 del libro 
+\textit{The Little Book of Semaphores}. En dicha secci\'on se especifica el problema y se presenta una soluci\'on para una situaci\'on en la 
+cual varios procesos desean leer o escribir una misma variable, de acuerdo a las siguientes reglas: varios procesos pueden acceder al mismo tiempo a la 
+variable, siempre y cuando sea exclusivamente para leerla y no haya ning\'un proceso escribi\'endola. Si alg\'un proceso desea escribirla, 
+debe tener garantizado el acceso exclusivo a ella. En nuestro caso, al tratarse de un juego de Scrabble multijugador, las variables compartidas ser\'an 
+cada una de las posiciones del tablero.
 
-Para la lectura modificamos las funciones de la siguiente forma:\\
-En el caso del lock
+Para el dise\~no de la clase \verb|RWLock|, decidimos usar las siguientes variables:
+
+\begin{itemize}
+ \item Un entero \verb|cantidadDeSolicitudes|, que informar\'a cu\'antos procesos est\'an leyendo la variable compartida.
+ \item Un mutex \verb|mutexSolicitudes|, que garantizar\'a acceso exclusivo a \verb|cantidadDeSolicitudes|.
+ \item Un mutex \verb|roomEmpty|, que estar\'a seteado en 1 cuando la secci\'on cr\'itica est\'e libre, y en 0 cuando haya alg\'un proceso all\'i (tanto
+ para leer como para escribir)
+\end{itemize}
+
+Para la lectura de la variable compartida, implementamos las funciones con la siguiente idea: si cuando un proceso intenta acceder a la variable para leerla,
+no hay otros procesos leyendo el valor de la variable (condici\'on que se puede controlar con el valor de \verb|cantidadDeSolicitudes|), deber\'a esperar
+a que no haya ning\'un proceso escribiendo la variable (condici\'on protegida por \verb|roomEmpty|). 
 
 \begin{verbatim}
 void RWLock::rlock(){
-IF (cantidadDeSolicitudes == 0){			//No habia nadie en la seccion critica
-    pthread_mutex_lock(&roomEmpty);		//Bloqueo roomEmpty porque ahora ingresara alguien y dejara de estarlo
-}
-cantidadDeSolicitudes++;					//Aumento en uno cantidadDeSolicitudes por el nuevo ingresante;
+  pthread_mutex_lock(&mutexSolicitudes); // Acceso exclusivo al contador de lectores
+  cantidadDeSolicitudes++;		// Se suma un lector
+  if (cantidadDeSolicitudes == 1){	// Como no había ningún lector en la seccion crítica,
+    pthread_mutex_lock(&roomEmpty);	// espero a que el (potencial) escritor libere la variable.
+  }
+  pthread_mutex_unlock(&mutexSolicitudes);
 }
 \end{verbatim}
 
-Para el unlock
+De manera an\'aloga, cuando un proceso lector abandona la secci\'on cr\'itica, verificar\'a si la est\'a dejando vac\'ia de escritores. Si esta 
+condici\'on se cumple, deber\'a desbloquear \verb|roomEmpty|, ya que podr\'ia haber un proceso esperando para escribir el valor de la variable.
 \begin{verbatim}
 void RWLock::runlock(){
-cantidadDeSolicitudes--;	         //Disminuyo cantidadDeSolicitudes porque uno dejara de leer
-IF (!cantidadDeSolicitudes){	              //Si no queda nadie en la seccion critica
-    pthread_mutex_unlock(&roomEmpty);        //activo la sen\~al de roomEmpty para el que quiera escribir
-	}
+  pthread_mutex_lock(&mutexSolicitudes);
+  cantidadDeSolicitudes--;		// decremento por el lector que se va
+  if (cantidadDeSolicitudes == 0	// si el proceso es el ultimo lector en salir,
+    pthread_mutex_unlock(&roomEmpty);	// avisa que ya no hay nadie en la seccion critica.
+  }
+  pthread_mutex_unlock(&mutexSolicitudes);
 }
 \end{verbatim}
 
-En el caso de la escritura no debemos permitir que haya mas de un thread en la seccion critica.
- En el caso del lock:
+En el caso en que un proceso desee escribir, debemos garantizarle acceso exclusivo a la variable, de manera que el \verb|lock| estar\'a implementado como un
+\verb|lock| a \verb|roomEmpty| y, an\'alogamente, el \verb|unlock| consistir\'a en enviarle la sen\~al de \verb|unlock| al mismo mutex:
  
 \begin{verbatim}
 void RWLock::wlock(){
-pthread_mutex_lock(&roomEmpty);		//Bloqueamos la variable roomEmpty para que nadie pueda acceder
+  pthread_mutex_lock(&roomEmpty);	// Bloqueamos la variable roomEmpty para que nadie pueda acceder
 }
 \end{verbatim}
 
 Para el unlock:
 \begin{verbatim}
 void RWLock::wunlock(){
-pthread_mutex_unlock(&roomEmpty);		//Liberamos roomEmpty para que puedan acceder otros
+  pthread_mutex_unlock(&roomEmpty);	// Liberamos roomEmpty para que puedan acceder otros
 }
 \end{verbatim}
 
-
-
-
-
-
+Es importante notar que, para los escritores, esperar al mutex \verb|roomEmpty| es condici\'on suficiente para garantizar acceso exclusivo a la variable:
+el primer lector que quiera leer la variable tendr\'a que tener el mutex antes (lo cual garantiza que el escritor no sobreescriba el valor de la variable
+mientras los lectores lo leen), y \verb|roomEmpty| reci\'en se liberar\'a cuando el \'ultimo lector haya terminado de leer.
 
 \subsection{Ejercicio 2: Backend Multithreaded}
+
+Para la implementaci\'on del backend con multithreading decidimos, en primer lugar, aprovechar toda la l\'ogica del juego posible de la soluci\'on del
+backend mono presentada por la c\'atedra: usamos una matriz para las palabras ya terminadas, y otra auxiliar para registrar palabras a medio completar por
+los jugadores. De esta manera, si un jugador pone una ficha que invalida su palabra (por estar ocupada por otro jugador que tambi\'en est\'a armando una
+palabra, o por poner fichas inconexas entre ellas en el tabler) el rollback se har\'a sobre la matriz auxiliar y no sobre la matriz con las palabras bien
+formadas. La l\'ogica para el manejo de las conexiones entrantes al servidor backend mediante sockets ser\'a casi id\'entica a lo implementado por la 
+c\'atedra en el servidor para el backend mono, de modo que explicaremos \'unicamente la diferencia con dicha implementaci\'on. 
+
+Al recibir una nueva conexi\'on, nuestro backend lanzar\'a un nuevo thread, que empezar\'a a ejecutar el c\'odigo de la funci\'on \verb|atendedorDeJugador|, 
+que esperar\'a a recibir, mediante un socket, el nombre del jugador reci\'en ingresado. Luego de esto, ejecutar\'a indefinidamente la siguiente secuencia:
+
+\begin{verbatim}
+  lista<Casilleros> palabra_actual
+  comando = obtener_comando_del_cliente();
+  if(esLetra(comando)){
+    ficha = parsear_ficha(comando);	//ficha tiene fila, columna y letra recibida del cliente.
+    if(!esValidaEnPalabra(ficha,palabra_actual)){
+      RollBack(palabra_actual,tablero_auxiliar);
+    }
+    else{
+      tablero_de_mutexes[ficha.fila][ficha.columna].wlock();
+      palabra_actual.push_back(ficha);
+      tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
+      tablero_usadas_provisorias[ficha.fila][ficha.columna] = ficha.letra;
+      tablero_de_mutexes[ficha.fila][ficha.columna].wunlock();
+    }
+  }
+  else if(esPalabraTerminada(comando)){
+    /* Acceso exclusivo al tablero definitivo al terminar una palabra */
+    escribiendo.wlock();
+    /*Escribimos en el definitivo la palabra completa y la borramos del auxiliar*/
+    escribir_palabra_en_tablero_defintivo(palabra_actual);
+    vaciar_tablero_auxiliar(palabra_actual);
+    /* Liberamos el tablero definitivo*/
+    escribiendo.wunlock(); 
+  }
+\end{verbatim}
+
+En este punto vale la pena aclarar que, si bien el c\'odigo del \verb|atendedorDeJugador| tomar\'a en cuenta los casos en los que el jugador se desconecte
+del juego o haya alg\'un error en la conexi\'on, estos casos no estar\'an explicados en este informe, pues no hacen al entendimiento de c\'omo resolvimos
+el acceso al tablero del Scrabble multijugador.
