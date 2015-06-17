@@ -104,6 +104,30 @@ que esperar\'a a recibir, mediante un socket, el nombre del jugador reci\'en ing
   }
 \end{verbatim}
 
-En este punto vale la pena aclarar que, si bien el c\'odigo del \verb|atendedorDeJugador| tomar\'a en cuenta los casos en los que el jugador se desconecte
-del juego o haya alg\'un error en la conexi\'on, estos casos no estar\'an explicados en este informe, pues no hacen al entendimiento de c\'omo resolvimos
+En este punto vale la pena aclarar que, si bien el c\'odigo del \verb|atendedorDeJugador| tomar\'a en cuenta los casos en los que 
+el jugador se desconecte
+del juego o haya alg\'un error en la conexi\'on, estos casos no estar\'an explicados en este informe, pues no hacen al entendimiento 
+de c\'omo resolvimos
 el acceso al tablero del Scrabble multijugador.
+
+Ahora, procederemos a detallar que funci\'on cumplen las partes modificadas, y el porque de cada decisi\'on.
+
+La implementacion guarda las jugadas no terminadas de los jugadores en un tablero auxiliar. En el mismo se bloquean los casilleros que estan siendo
+usados para la una jugada no terminada de otro jugador, junto con todos los casilleros donde ya hay palabras ubicadas. De este modo, podemos
+evitar que dado el caso en que un jugador $j$ posiciona una letra en un casillero $(x,y)$, cualquier otro jugador pueda ubicar una letra en $(x,y)$.
+
+Por otro lado, cada vez que un jugador envia el mensaje MSG\_PALABRA, es decir, termina la palabra, el tablero se bloquea. Sabemos que,
+dados los bloqueos en el tablero auxiliar, ning\'un jugador podr\'ia escribir en los casilleros necesarios para completar la palabra. Por lo tanto,
+no se presentar\'ian inconsistencias si no bloqueamos el tablero, siempre y cuando reservemos los casilleros del tablero. Sin embargo, puede suceder que,
+mientras se est\'a transcribiendo la palabra, otro jugador env\'ie el mensaje MSG\_PALABRA. Si esto sucede sin tener el tablero bloqueado, puede pasar que 
+se muestre solo la parte que se logr\'o transcribir de la primer palabra en la actualizaci\'on, es decir, no la palabra completa. En este caso podr\'iamos
+obtener una lectura del tablero con tan solo media palabra. Consideramos que este es un funcionamiento err\'oneo, por lo cual decidimos bloquear el tablero.
+
+N\'otese que se podr\'ia lograr un mayor nivel de concurrencia si cre\'aramos adicionamente un mutex m\'as para cada casillero, y bloquear todas las casillas
+de la palabra antes de escribirla. Sin embargo, esa implementaci\'on tiene mayor complejidad espacial y es menos declarativa, por lo que optamos por usar 
+un solo mutex para todo el tablero.
+
+Adem\'as, modificamos las funciones \verb|quitar_letras| y \verb|es_ficha _valida_en_palabra|.
+\verb|quitar_letras| se modific\'o de modo que elimine las letras correspondientes del tablero auxiliar.
+En \verb|es_ficha_valida_en_palabra|, agregamos la condici\'on de que, si el casillero est\'a ocupado en el tablero auxiliar por una letra  
+(lo cual indica que otro jugador escribi\'o en esa posici\'on) no se permita escribir en ella. 
