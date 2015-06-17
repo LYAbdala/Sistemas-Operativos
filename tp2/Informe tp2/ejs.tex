@@ -25,7 +25,7 @@ a que no haya ning\'un proceso escribiendo la variable (condici\'on protegida po
 void RWLock::rlock(){
   pthread_mutex_lock(&mutexSolicitudes); // Acceso exclusivo al contador de lectores
   cantidadDeSolicitudes++;		// Se suma un lector
-  if (cantidadDeSolicitudes == 1){	// Como no había ningún lector en la seccion crítica,
+  if (cantidadDeSolicitudes == 1){	// Como no habia ningun lector en la seccion critica,
     pthread_mutex_lock(&roomEmpty);	// espero a que el (potencial) escritor libere la variable.
   }
   pthread_mutex_unlock(&mutexSolicitudes);
@@ -78,39 +78,30 @@ Al recibir una nueva conexi\'on, nuestro backend lanzar\'a un nuevo thread, que 
 que esperar\'a a recibir, mediante un socket, el nombre del jugador reci\'en ingresado. Luego de esto, ejecutar\'a indefinidamente la siguiente secuencia:
 
 \begin{verbatim}
-  lista<Casilleros> palabra_actual
-  comando = obtener_comando_del_cliente();
-  if(esLetra(comando)){
-    ficha = parsear_ficha(comando);	//ficha tiene fila, columna y letra recibida del cliente.
-    if(!esValidaEnPalabra(ficha,palabra_actual)){
-      RollBack(palabra_actual,tablero_auxiliar);
-    }
-    else{
-      tablero_de_mutexes[ficha.fila][ficha.columna].wlock();
-      palabra_actual.push_back(ficha);
-      tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
-      tablero_usadas_provisorias[ficha.fila][ficha.columna] = ficha.letra;
-      tablero_de_mutexes[ficha.fila][ficha.columna].wunlock();
-    }
-  }
-  else if(esPalabraTerminada(comando)){
-    /* Acceso exclusivo al tablero definitivo al terminar una palabra */
-    escribiendo.wlock();
-    /*Escribimos en el definitivo la palabra completa y la borramos del auxiliar*/
-    escribir_palabra_en_tablero_defintivo(palabra_actual);
-    vaciar_tablero_auxiliar(palabra_actual);
-    /* Liberamos el tablero definitivo*/
-    escribiendo.wunlock(); 
-  }
+  esperar comando del cliente
+  si el comnado es una ficha para colocar en la posicion X
+    si no se puede colocar una letra en X, por cualquier motivo
+      quitar las letras de la palabra que actualmente esta escribiendo mi cliente
+    si se puede colocar
+      bloqueo la posicion en el tablero auxiliar
+      escribo la letra en el tablero auxiliar
+      desbloqueo la posicion en el tablero auxiliar
+  si el comando indica que se termino la palabra
+    bloqueo el tablero
+    transcribo la palabra del tablero auxiliar a mi tablero definitivo
+    borro la palabra del tablero auxiliar
+    desbloqueo el tablero
 \end{verbatim}
 
-En este punto vale la pena aclarar que, si bien el c\'odigo del \verb|atendedorDeJugador| tomar\'a en cuenta los casos en los que 
+En este punto vale la pena aclarar que, si bien el c\'odigo de \verb|atenderJugador| tomar\'a en cuenta los casos en los que 
 el jugador se desconecte
 del juego o haya alg\'un error en la conexi\'on, estos casos no estar\'an explicados en este informe, pues no hacen al entendimiento 
 de c\'omo resolvimos
 el acceso al tablero del Scrabble multijugador.
 
-Ahora, procederemos a detallar que funci\'on cumplen las partes modificadas, y el porque de cada decisi\'on.
+Ahora, procederemos a detallar que funci\'on cumplen las partes modificadas, y el porque de cada decisi\'on. La explicacion se hara funcion a funcion. 
+No incluimos pseudocodigo de las funciones auxiliares pues no aporta claridad (ya que las modificaciones se pueden explicar facilmente en texto),
+ni consideramos relevante el comportamiento general de estas funciones para explicar la sincronizacion realizada.
 
 La implementacion guarda las jugadas no terminadas de los jugadores en un tablero auxiliar. En el mismo se bloquean los casilleros que estan siendo
 usados para la una jugada no terminada de otro jugador, junto con todos los casilleros donde ya hay palabras ubicadas. De este modo, podemos
