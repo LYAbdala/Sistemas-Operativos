@@ -18,9 +18,9 @@ void servidor(int mi_cliente)
     int N = processesCount / 2;                     /*N:= #servidores*/
 
     /* Ints */
-    int my_sequence_number;                         /* numero de secuencia que voy a usar en mis requests */
+    int my_sequence_number = -1;                    /* numero de secuencia que voy a usar en mis requests */
     int highest_sequence_number = 0;                /* numero de secuencia mas alto que vi hasta ahora */
-    int remaining_replies_left;                     /* cuantas replies me faltan para poder asignar el recurso al cliente */
+    int remaining_replies_left = -1;                /* cuantas replies me faltan para poder asignar el recurso al cliente */
 
     /* Booleanos */
     int requesting_critical_section = FALSE;            /* indica si pedi mutex o no */
@@ -39,7 +39,7 @@ void servidor(int mi_cliente)
     int i;                                              /* indice sobre arrays, en todos lados */
     int sequenceNumberFromRequest;                      /* numero de secuencia recibido de otro server */
     int serverIdFromRequest;                            /* id de server recibido de otro server */
-    int deferIt;                                        /* variable auxiliar que indicara si se debe posponer la reply a otro server */
+    int deferIt = FALSE;                                        /* variable auxiliar que indicara si se debe posponer la reply a otro server */
 
     while( ! listo_para_salir ) {
 
@@ -176,3 +176,4 @@ int countActive(int* buffer, int count){
     }
     return res;
 }
+
